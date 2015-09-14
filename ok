@@ -1,0 +1,59 @@
+[33mcommit deb47b99b44308e5e8d6901fabf8296cbfdab474[m
+Author: Kari Moore <moorekari9@gmail.com>
+Date:   Fri Sep 11 14:27:10 2015 -0500
+
+    Checkpoint 16 Completed
+
+[1mdiff --git a/foundation/16-logic/bin/com/bloc/logic/Logic.class b/foundation/16-logic/bin/com/bloc/logic/Logic.class[m
+[1mnew file mode 100644[m
+[1mindex 0000000..ac032a5[m
+Binary files /dev/null and b/foundation/16-logic/bin/com/bloc/logic/Logic.class differ
+[1mdiff --git a/foundation/16-logic/src/com/bloc/logic/Logic.java b/foundation/16-logic/src/com/bloc/logic/Logic.java[m
+[1mindex 7947d42..18eb7ec 100644[m
+[1m--- a/foundation/16-logic/src/com/bloc/logic/Logic.java[m
+[1m+++ b/foundation/16-logic/src/com/bloc/logic/Logic.java[m
+[36m@@ -17,7 +17,7 @@[m [mpublic class Logic extends Object {[m
+ 	 	 *	that the statement evaluates to 'true' [m
+ 		/************************************************/[m
+ [m
+[31m-		if (false && true) { // Change something here[m
+[32m+[m		[32mif (true && true) { // Change something here[m
+ 			buffer.append("r");[m
+ 		} else {[m
+ 			buffer.append("w");[m
+[36m@@ -30,7 +30,7 @@[m [mpublic class Logic extends Object {[m
+ 		 *	the conditional as 'true'[m
+ 		/************************************************/[m
+ [m
+[31m-		int x = 5; // Change here[m
+[32m+[m		[32mint x = 6; // Change here[m
+ 		int y = 10; // Or here[m
+ 		int z = 30; // Or here[m
+ 		if (x == 6 || y == 11 || z == 83) { // Or even here, who knows[m
+[36m@@ -46,7 +46,7 @@[m [mpublic class Logic extends Object {[m
+ 		/************************************************/[m
+ [m
+ 		boolean aSincereFalsehood = false;[m
+[31m-		if (aSincereFalsehood) { // Add an operator to this line[m
+[32m+[m		[32mif (!aSincereFalsehood) { // Add an operator to this line[m
+ 			buffer.append("g");[m
+ 		} else {[m
+ 			buffer.append("o");[m
+[36m@@ -58,7 +58,7 @@[m [mpublic class Logic extends Object {[m
+ 	 	 *	statement to evaluate as 'true'[m
+ 		/************************************************/[m
+ [m
+[31m-		if (200 > 200) {[m
+[32m+[m		[32mif (200 >= 200) {[m
+ 			buffer.append("h");[m
+ 		} else {[m
+ 			buffer.append("n");[m
+[36m@@ -72,7 +72,7 @@[m [mpublic class Logic extends Object {[m
+ 		/************************************************/[m
+ [m
+ 		boolean lastOne = false;[m
+[31m-		if ((8 < 0) && !(15 == 15) && (lastOne == true)) { // Modify this line[m
+[32m+[m		[32mif ((8 > 0) && (15 == 15) && (lastOne == false)) { // Modify this line[m
+ 			buffer.append("t");[m
+ 		} else {[m
+ 			buffer.append("g");[m
