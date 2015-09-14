@@ -37,7 +37,7 @@ public class Methods extends Object {
 		 ************************************************/
 
 		// You are free to modify the return statement
-		return false;
+		return !original;
 	}
 
 	/*
@@ -60,7 +60,10 @@ public class Methods extends Object {
 		/************************************************
 		 * Your work goes here
 		 ************************************************/
-	}
+                 for (int i =0; i < numbers.length; i++){
+                    numbers[i] *= -1;
+                 }
+        }
 
 
 	/*
@@ -90,9 +93,12 @@ public class Methods extends Object {
 		/************************************************
 		 * Your work goes here
 		 ************************************************/
-
-		// You are free to modify the return statement
-		return new boolean [0];
+                boolean[] someBool = new boolean[someNumbers.length]; 
+                for (int i=0; i < someNumbers.length; i++){
+                    someBool[i] = someNumbers[i]>= floor;
+                }
+                // You are free to modify the return statement
+		return someBool;
 	}
 
 	/*
@@ -117,9 +123,32 @@ public class Methods extends Object {
 		/************************************************
 		 * Your work goes here
 		 ************************************************/
-
+                 int[] minMax = new int[2];
+                 final int MIN = 0;
+                 final int MAX = 1;
+                 // Exceptions: 
+                 if (someNumbers.length < 1)
+                     return minMax;
+                 if (someNumbers.length == 1) {
+                     minMax[MIN] = someNumbers[0];
+                     minMax[MAX] = someNumbers[0];
+                 }
+                     
+                 //set min and max to first int
+                 minMax[MIN] = someNumbers[0];
+                 minMax[MAX] = someNumbers[0];
+                 
+                 //compare each element placing smaller int in min
+                 // place larger in max
+                 for (int i = 1; i < someNumbers.length; i++){
+                     if (someNumbers[i] < minMax[MIN])
+                         minMax[MIN] = someNumbers[i];
+                     if (someNumbers[i] > minMax[MAX])
+                         minMax[MAX] = someNumbers[i];
+                 }
+                 
 		// You are free to modify the return statement
-		return new int[2];
+		return minMax;
 	}
 
 
