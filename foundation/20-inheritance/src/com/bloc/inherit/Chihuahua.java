@@ -7,3 +7,8 @@ package com.bloc.inherit;
  *	Chiuahuas must be fed 5 times in order to grow
  *	larger.
 /************************************************/
+class Chihuahua extends Dog {
+    Chihuahua(){
+        setMaxFeed(5);
+    }
+}

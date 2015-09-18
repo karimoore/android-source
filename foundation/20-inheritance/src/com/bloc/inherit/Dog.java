@@ -5,7 +5,14 @@ abstract class Dog {
 	/************************************************
  	*	YOU MAY MODIFY THIS FILE
 	/************************************************/
-
+        final static int SIZE_TINY_0 = 0;
+        final static int SIZE_SMALL_1 = 1;
+        final static int SIZE_AVERAGE_2 = 2;
+        final static int SIZE_LARGE_3 = 3;
+        
+        final static int FEED_BEFORE_WEIGHT_GAIN = 3;
+        final static int PLAY_BEFORE_WEIGHT_LOSS = 6;
+        
 	// Add this amount for each meal
 	final static float WEIGHT_GAINED_FROM_FEEDING = .1f;
 	// Reduce this amount for each play
@@ -30,8 +37,70 @@ abstract class Dog {
 	int mFeedCounter;
 	// Tracks how many times the dog has played
 	int mPlayCounter;
+        // number of times fed before weight gain
+        int mMaxFeed;
+        // number of times dog plays before losses weight
+        int mMaxPlay;
+        // max amount of sizes for a dog (tin
+        int mMaxSizeIndex; //(tiny,small,average,large) = 3 (length-1)
+        /* Abstract Methods */
 
-	/* Abstract Methods */
+        Dog(){
+            setMaxFeed(FEED_BEFORE_WEIGHT_GAIN); // 3 feeds, dog gains weight
+            setMaxPlay(PLAY_BEFORE_WEIGHT_LOSS); // 6 plays, dog losses weight
+            setSizeIndex(SIZE_LARGE_3); // tiny,small,average,large (range 0-3: 3 is max)
+        }
+
+
+	/*
+	 * setIndexOfSize
+	 * 
+	 * @param max index of the possible sizes of dog, int
+         *                          (amount of sizes -1)
+	 * @return nothing
+	 */
+	void setSizeIndex(int index) {
+		mMaxSizeIndex = index;
+	}
+	/*
+	 * getSizeIndex
+	 * @return max index size of possible dog sizes (ex:tiny,small,average,large)
+        */
+	int getMaxSizeIndex() {
+		return mMaxSizeIndex;
+	}
+	/*
+	 * setMaxFeed
+	 * Sets the feed amount before weight gain
+	 * @param feed the number of times the dog is fed before gaining weight, int
+	 * @return nothing
+	 */
+	void setMaxFeed(int feed) {
+		mMaxFeed = feed;
+	}
+	/*
+	 * getMaxFeed
+	 * @return number of times the dog is fed before gains weight
+	 */
+	int getMaxFeed() {
+		return mMaxFeed;
+	}
+	/*
+	 * setMaxPlay
+	 * Sets the play count before weight loss
+	 * @param play -times dog plays before weight loss, int
+	 * @return nothing
+	 */
+	void setMaxPlay(int play) {
+		mMaxPlay = play;
+	}
+	/*
+	 * getMaxPlay
+	 * @return times the dog plays before weight loss
+	 */
+	int getMaxPlay() {
+		return mMaxPlay;
+	}
 
 	/*
 	 * getHairLength
@@ -40,7 +109,6 @@ abstract class Dog {
 	float getHairLength() {
 		return mHairLength;
 	}
-
 
 	/*
 	 * setHairLength
@@ -152,7 +220,7 @@ abstract class Dog {
 	void feed() {
 		mWeight += WEIGHT_GAINED_FROM_FEEDING;
 		// Pre-increment feed counter
-		if (++mFeedCounter == 3) {
+		if (++mFeedCounter == getMaxFeed()) {
 			changeSize(true);
 			mFeedCounter = 0;
 		}
@@ -171,7 +239,7 @@ abstract class Dog {
 			setWeight(MINIMUM_WEIGHT);
 		}
 		// Pre-increment play counter
-		if (++mPlayCounter == 6) {
+		if (++mPlayCounter == getMaxPlay()) {
 			changeSize(false);
 			mPlayCounter = 0;
 		}
@@ -184,6 +252,7 @@ abstract class Dog {
 	 */
 	void cutHair() {
 		setHairLength(getHairLength() - HAIR_LENGTH_REDUCED_FROM_CUT);
+                
 		// Check if we're in the negative hair length a.k.a impossible
 		if (getHairLength() < 0f) {
 			setHairLength(0f);
@@ -199,8 +268,8 @@ abstract class Dog {
 	void changeSize(boolean grow) {
 		int sizeIndex = getSizeIndex();
 		sizeIndex = sizeIndex + (grow ? 1 : -1);
-		if (sizeIndex > 3) {
-			sizeIndex = 3;
+		if (sizeIndex > getMaxSizeIndex()) {
+			sizeIndex = getMaxSizeIndex();
 		} else if (sizeIndex < 0) {
 			sizeIndex = 0;
 		}
@@ -225,19 +294,19 @@ abstract class Dog {
 	int getSizeIndex(String size) {
 		if (size == null) {
 			// Return default "average" when missing size
-			return 2;
+			return SIZE_AVERAGE_2;
 		}
 
 		if( "tiny".equals(size) ) {
-			return 0;
+			return SIZE_TINY_0;
 		} else if( "small".equals(size) ) {
-			return 1;
+			return SIZE_SMALL_1;
 		} else if( "average".equals(size) ) {
-			return 2;
+			return SIZE_AVERAGE_2;
 		} else if( "large".equals(size) ) {
-			return 3;
+			return SIZE_LARGE_3;
 		} else {
-			return 2;
+			return SIZE_AVERAGE_2;
 		}
 	}
 
@@ -248,10 +317,10 @@ abstract class Dog {
 	 */
 	String fromSizeIndex(int index) {
 		switch(index) {
-			case 0: return "tiny";
-			case 1: return "small";
-			case 2: return "average";
-			case 3:
+			case SIZE_TINY_0: return "tiny";
+			case SIZE_SMALL_1: return "small";
+			case SIZE_AVERAGE_2: return "average";
+			case SIZE_LARGE_3:
 			default: return "large";
 		}
 	}
