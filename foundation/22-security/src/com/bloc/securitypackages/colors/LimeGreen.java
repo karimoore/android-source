@@ -1,4 +1,4 @@
-package com.bloc.securitypackages.colors;
+package com.bloc.securitypackages;
 
 /************************************************
  *	YOU MAY MODIFY THIS FILE AND/OR ITS LOCATION

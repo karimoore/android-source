@@ -15,12 +15,7 @@ $ cd bin/
 ```
 
 From within bin, execute your code by running the following command:
-
-```bash
-$ java com.bloc.securitypackages.Main
-```
-
-If you see a nice congrats message, everything's been properly organized!
+j
 
 ## All Done?
 

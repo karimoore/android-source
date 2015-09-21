@@ -1,13 +1,13 @@
-package com.bloc.securitypackages.apples;
+package com.bloc.securitypackages;
 
 /************************************************
  *	YOU MAY MODIFY THIS FILE AND/OR ITS LOCATION
 /************************************************/
 
-class Green extends Apple {
+class GreenApple extends Apple {
 
-	Green() {
-		super(Green.class.getSimpleName(), 230, new LimeGreen(), 0.21d);
+	GreenApple() {
+		super(GreenApple.class.getSimpleName(), 230, new LimeGreen(), 0.21d);
 	}
 
 	void bite() {

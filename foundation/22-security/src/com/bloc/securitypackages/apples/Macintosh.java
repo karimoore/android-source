@@ -1,4 +1,4 @@
-package com.bloc.securitypackages.apples;
+package com.bloc.securitypackages;
 
 /************************************************
  *	YOU MAY MODIFY THIS FILE AND/OR ITS LOCATION
