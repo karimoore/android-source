@@ -24,12 +24,15 @@ public class FavoritePastries {
 	 *	Use a HashMap to store the relationship
 	 *	between rating and pastry: HashMap<Integer, List<Pastry>>
 	/************************************************/
-
+        private HashMap<Integer, HashSet<Pastry>> mHashMap;
 
 	public FavoritePastries() {
 		/************************************************
  	 	 *	WORK HERE
 		/************************************************/
+                // John, I changed the List to a HashSet because of 
+                // the non-duplicate requirement
+                mHashMap = new HashMap<Integer, HashSet<Pastry>>();
 	}
 
 	/* 
@@ -51,6 +54,22 @@ public class FavoritePastries {
 		/************************************************
  	 	 *	WORK HERE
 		/************************************************/
+            // just remove the pastry from list
+            // we will add it anyway
+            removePastry(pastry);
+            HashSet<Pastry> pastrySet;            
+            //if rating exists, add on to the Set
+            if (mHashMap.containsKey(rating))
+                pastrySet = mHashMap.get(rating);
+            else
+                pastrySet = new HashSet<Pastry>();
+            
+            //add to new or existing set
+            pastrySet.add(pastry);  //a HashSet WILL NOT add dupicate
+            
+            //put: if rating exists it replaces old value with new one
+            //adds a new one if doesnt exist
+            mHashMap.put(new Integer(rating), pastrySet);  
 	}
 
 	/* 
@@ -69,7 +88,13 @@ public class FavoritePastries {
 		/************************************************
  	 	 *	WORK HERE, you must modify the return value
 		/************************************************/
-		return false;
+            HashSet<Pastry> hashSet;
+            //for each entry, remove the pastry
+            for (HashMap.Entry<Integer,HashSet<Pastry>> entry : mHashMap.entrySet()) {
+                if (entry.getValue().remove(pastry))
+                    return true;
+            }
+            return false;
 	}
 
 	/* 
@@ -90,7 +115,14 @@ public class FavoritePastries {
 		/************************************************
  	 	 *	WORK HERE, you must modify the return value
 		/************************************************/
-		return -1;
+            // for each <Integer, HashSet<Pastry>> in mHashMap 
+            // does the Set contain pastry, if so, get rating (key)
+            HashSet<Pastry> hashSet;
+            for (HashMap.Entry<Integer,HashSet<Pastry>> entry : mHashMap.entrySet()) {
+                if (entry.getValue().contains(pastry))
+                    return entry.getKey();
+            }
+            return -1;
 	}
 
 	/* 
@@ -113,7 +145,15 @@ public class FavoritePastries {
 		/************************************************
  	 	 *	WORK HERE, you must modify the return value
 		/************************************************/
-		return null;
+            HashSet<Pastry> pastrySet;            
+            //if rating exists in map, get the HashSet (value)
+            if (mHashMap.containsKey(rating))
+                pastrySet = mHashMap.get(rating);
+            else
+                pastrySet = new HashSet<Pastry>();  // rating not found
+            
+            return pastrySet;
+   
 	}
 
 }
