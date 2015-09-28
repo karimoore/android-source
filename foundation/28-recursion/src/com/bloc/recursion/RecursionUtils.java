@@ -20,6 +20,12 @@ public class RecursionUtils extends Object {
 	 	 *	Implement this method, the return value must
 	 	 *	change
 		/************************************************/
-		return 0;
+            // put the largest number at end of list and recurse sublist
+            if (numbers.size() > 0)
+                return Math.max(numbers.get(0), 
+                                findMaxRecursively(numbers.subList(1, numbers.size())));
+            else 
+                return 0;
+             
 	}
 }
