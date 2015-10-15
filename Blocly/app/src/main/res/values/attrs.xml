@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="Roboto">
+
+        <attr name="condensed" format="boolean">
+        </attr>
+        <attr name="robotoStyle">
+            <flag name="Black" value="0x1" />
+            <flag name="Italic" value="0x2" />
+            <flag name="Bold" value="0x4" />
+            <flag name="Light" value="0x8" />
+            <flag name="Medium" value="0x10" />
+            <flag name="Thin" value="0x20" />
+        </attr>
         <attr name="robotoFont" format="enum">
             <enum name="Black" value="0"/>
             <enum name="BlackItalic" value="1"/>
@@ -20,6 +31,6 @@
             <enum name="CondensedLight" value="15"/>
             <enum name="CondensedLightItalic" value="16"/>
             <enum name="CondensedRegular" value="17"/>
-        </attr>
+        </attr>-->
     </declare-styleable>
 </resources>

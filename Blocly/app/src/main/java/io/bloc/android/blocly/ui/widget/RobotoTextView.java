@@ -44,17 +44,23 @@ public class RobotoTextView extends TextView {
         TypedArray typedArray = getContext().getTheme().obtainStyledAttributes(
                 attrs, R.styleable.Roboto, 0, 0);
 
-        int robotoFontIndex = typedArray.getInteger(R.styleable.Roboto_robotoFont, -1);
-        // #8
+        boolean isCondensed = typedArray.getBoolean(R.styleable.Roboto_condensed, false);
+        int robotoStyleIndex = typedArray.getInteger(R.styleable.Roboto_robotoStyle, -1);
         typedArray.recycle();
-        // #9
+
+        // get the index from the array of possible bit combinations  EX:Thin|Italic
+        int[] intArray = getResources().getIntArray(R.array.bit_array);
+        // given the bit combination - get the index which is mapped to the font file name
+        int robotoFontIndex = java.util.Arrays.binarySearch(intArray, robotoStyleIndex);
         String[] stringArray = getResources().getStringArray(R.array.roboto_font_file_names);
         if (robotoFontIndex < 0 || robotoFontIndex >= stringArray.length) {
             return;
         }
         String robotoFont = stringArray[robotoFontIndex];
+        if (isCondensed)
+            robotoFont = robotoFont.replaceAll("Roboto", "RobotoCondensed");
+
         Typeface robotoTypeface = null;
-        // #10
         if (sTypefaces.containsKey(robotoFont)) {
             robotoTypeface = sTypefaces.get(robotoFont);
         } else {

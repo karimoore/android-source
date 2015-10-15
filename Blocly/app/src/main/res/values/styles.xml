@@ -16,7 +16,9 @@
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:textSize">24sp</item>
         <item name="android:ellipsize">end</item>
-        <item name="robotoFont">Regular</item>
+        <!--<item name="robotoFont">CondensedBold</item>-->
+        <item name="condensed">true</item>
+        <item name="robotoStyle">Bold</item>
     </style>
 
     <style name="Caption">
@@ -24,12 +26,16 @@
         <item name="android:textSize">12sp</item>
         <item name="android:lines">1</item>
         <item name="android:ellipsize">end</item>
-        <item name="robotoFont">Regular</item>
+        <!--<item name="robotoFont">BlackItalic</item>-->
+        <item name="condensed">false</item>
+        <item name="robotoStyle">Black|Italic</item>
     </style>
 
     <style name="Body1">
         <item name="android:textColor">@color/text_secondary</item>
         <item name="android:textSize">14sp</item>
-        <item name="robotoFont">Regular</item>
+        <!--<item name="robotoFont">Thin</item>-->
+        <item name="condensed">false</item>
+        <item name="robotoStyle">Thin</item>
     </style>
 </resources>
