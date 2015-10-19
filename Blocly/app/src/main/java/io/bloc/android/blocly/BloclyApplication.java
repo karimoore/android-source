@@ -56,4 +56,6 @@ public class BloclyApplication extends Application {
         ImageLoader.getInstance().init(configuration);
     }
 
+
+
 }

@@ -75,14 +75,21 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
             if (imageUrl != null) {
                 headerWrapper.setVisibility(View.VISIBLE);
                 headerImage.setVisibility(View.INVISIBLE);
-                ImageLoader.getInstance().loadImage(imageUrl, this);
+                try {
+                    ImageLoader.getInstance().loadImage(imageUrl, this);
+                } catch (IllegalStateException e){
+                    Log.e(TAG, "Init wasn't called", e);
+                }
+//                @throws IllegalStateException if {@link #init(ImageLoaderConfiguration)} method wasn't called before
             }
             else {
                 headerWrapper.setVisibility(View.GONE);
             }
         }
         @Override
-        public void onLoadingStarted(String imageUri, View view) {}
+        public void onLoadingStarted(String imageUri, View view) {
+            Log.e(TAG, "onLoadingStarted:  for URL: " + imageUri);
+        }
 
         @Override
         public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
@@ -91,6 +98,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
 
         @Override
         public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+
             if (imageUri.equals(imageUrl)){
                 headerImage.setImageBitmap(loadedImage);
                 headerImage.setVisibility(View.VISIBLE);
