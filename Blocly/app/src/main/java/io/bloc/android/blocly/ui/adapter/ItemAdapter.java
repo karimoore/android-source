@@ -130,7 +130,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
 //        CompoundButton.OnCheckedChangeListener
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            Log.v(TAG, "Checked changed to:" + isChecked);
+            String idName = buttonView.getResources().getResourceName(buttonView.getId());
+            Log.v(TAG, idName + " in "+ rssItem.getTitle() + " has been: " + (isChecked?"checked" :"unchecked"));
 
         }
     }
