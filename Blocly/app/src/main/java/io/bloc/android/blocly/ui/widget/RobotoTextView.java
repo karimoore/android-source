@@ -24,15 +24,15 @@ public class RobotoTextView extends TextView {
 
     public RobotoTextView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        extractFont(attrs);
+        extractFont(attrs, this);
     }
 
     public RobotoTextView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        extractFont(attrs);
+        extractFont(attrs, this);
     }
 
-    void extractFont(AttributeSet attrs) {
+    void extractFont(AttributeSet attrs, TextView tv) {
 
         if (isInEditMode()) {
             return;
@@ -63,6 +63,6 @@ public class RobotoTextView extends TextView {
             sTypefaces.put(robotoFont, robotoTypeface);
         }
         // #12
-        setTypeface(robotoTypeface);
+        tv.setTypeface(robotoTypeface);
     }
 }
