@@ -34,12 +34,20 @@ public class DataSource {
         feeds.add(new RssFeed("My Favorite Feed",
                 "This feed is just incredible, I can't even begin to tell you…",
                 "http://favoritefeed.net", "http://feeds.feedburner.com/favorite_feed?format=xml"));
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 5; i++) {
             items.add(new RssItem(String.valueOf(i),
                     BloclyApplication.getSharedInstance().getString(R.string.placeholder_headline) + " " +i,
                     BloclyApplication.getSharedInstance().getString(R.string.placeholder_content),
                     "http://favoritefeed.net?story_id=an-incredible-news-story",
                     "http://rs1img.memecdn.com/silly-dog_o_511213.jpg",
+                    0L, System.currentTimeMillis(), false, false, false));
+        }
+        for (int i = 5; i < 10; i++) {
+            items.add(new RssItem(String.valueOf(i),
+                    BloclyApplication.getSharedInstance().getString(R.string.placeholder_headline) + " " +i,
+                    BloclyApplication.getSharedInstance().getString(R.string.placeholder_content),
+                    "http://favoritefeed.net?story_id=an-incredible-news-story", null,
+//                    "http://rs1img.memecdn.com/silly-dog_o_511213.jpg",
                     0L, System.currentTimeMillis(), false, false, false));
         }
     }
