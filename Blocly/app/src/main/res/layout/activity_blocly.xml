@@ -26,12 +26,13 @@
     </LinearLayout>
 
     <TextView
+        android:id="@+id/tv_activity_blocly"
         android:layout_width="280dp"
         android:layout_height="match_parent"
         android:text="Welcome to the Drawer!"
         android:textSize="32sp"
         android:gravity="center"
-        android:background="?android:windowBackground"
+        android:background="@color/funAssignmentColorPink"
         android:layout_gravity="left" />
 
 </android.support.v4.widget.DrawerLayout>
