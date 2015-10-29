@@ -10,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import io.bloc.android.blocly.R;
 import io.bloc.android.blocly.ui.adapter.ItemAdapter;
@@ -18,7 +19,9 @@ import io.bloc.android.blocly.ui.adapter.NavigationDrawerAdapter;
 /**
  * Created by Kari on 10/5/2015.
  */
-public class BloclyActivity extends AppCompatActivity {
+
+
+public class BloclyActivity extends AppCompatActivity implements DoDelegatedWorkInterface{
 
     private ItemAdapter itemAdapter;
     private ActionBarDrawerToggle drawerToggle;
@@ -44,10 +47,12 @@ public class BloclyActivity extends AppCompatActivity {
         drawerLayout.setDrawerListener(drawerToggle);
 
         navigationDrawerAdapter = new NavigationDrawerAdapter();
+        navigationDrawerAdapter.SetToastDelegate(this);
         RecyclerView navigationRecyclerView = (RecyclerView) findViewById(R.id.rv_nav_activity_blocly);
         navigationRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         navigationRecyclerView.setItemAnimator(new DefaultItemAnimator());
         navigationRecyclerView.setAdapter(navigationDrawerAdapter);
+
     }
     @Override
     protected void onPostCreate(Bundle savedInstanceState){
@@ -66,5 +71,11 @@ public class BloclyActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+
+    @Override //DoDelegatedWorkInterface
+    public void Toast() {
+        Toast.makeText(BloclyActivity.this, "no functionality, but doing the Work inside the Activity", Toast.LENGTH_SHORT).show();
     }
 }

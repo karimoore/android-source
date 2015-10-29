@@ -5,16 +5,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import io.bloc.android.blocly.BloclyApplication;
 import io.bloc.android.blocly.R;
 import io.bloc.android.blocly.api.model.RssFeed;
+import io.bloc.android.blocly.ui.activity.DoDelegatedWorkInterface;
 
 /**
  * Created by Kari on 10/28/2015.
  */
 public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDrawerAdapter.ViewHolder> {
+    private DoDelegatedWorkInterface doToastWork;
     public enum NavigationOption {
         NAVIGATION_OPTION_INBOX,
         NAVIGATION_OPTION_FAVORITES,
@@ -40,6 +41,14 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
     public int getItemCount() {
         return (NavigationOption.values().length +
                 BloclyApplication.getSharedDataSource().getFeeds().size());
+    }
+/*
+    SetToastDelegate()
+    Whatever class implements the DoDelegatedWorkInterface will call
+            this function, then that class will do the work
+*/
+    public void SetToastDelegate(DoDelegatedWorkInterface doToastWork){
+        this.doToastWork = doToastWork;
     }
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -85,7 +94,7 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
         }
         @Override
         public void onClick(View v) {
-            Toast.makeText(v.getContext(), "Nothing...yet!",Toast.LENGTH_SHORT).show();
+            doToastWork.Toast();  //use delegation to in this case give the work to BloclyActivity
         }
     }
 }
