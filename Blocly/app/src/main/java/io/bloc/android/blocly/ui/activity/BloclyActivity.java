@@ -143,10 +143,20 @@ public class BloclyActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
+        String menuToast = "";
         if (drawerToggle.onOptionsItemSelected(item)){
             return true;
         }
-        Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
+        if (item.getTitle().equals(getString(R.string.menu_share)))
+            menuToast = "I love to Share";
+        else if (item.getTitle().equals(getString(R.string.menu_search)))
+            menuToast = "Searching is Fun";
+        else if (item.getTitle().equals(getString(R.string.menu_refresh)))
+            menuToast = "Refresh it up";
+        else if (item.getTitle().equals(getString(R.string.menu_mark_as_read)))
+            menuToast = "Mark 'em all!";
+
+        Toast.makeText(this, menuToast, Toast.LENGTH_SHORT).show();
         return super.onOptionsItemSelected(item);
     }
 }
