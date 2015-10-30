@@ -19,13 +19,15 @@ import java.util.ArrayList;
 
 import io.bloc.android.blocly.R;
 import io.bloc.android.blocly.api.model.RssFeed;
+import io.bloc.android.blocly.api.model.RssItem;
 import io.bloc.android.blocly.ui.adapter.ItemAdapter;
 import io.bloc.android.blocly.ui.adapter.NavigationDrawerAdapter;
 
 /**
  * Created by Kari on 10/5/2015.
  */
-public class BloclyActivity extends AppCompatActivity implements NavigationDrawerAdapter.NavigationDrawerAdapterDelegate {
+public class BloclyActivity extends AppCompatActivity implements NavigationDrawerAdapter.NavigationDrawerAdapterDelegate,
+                                                                    ItemAdapter.ItemAdapterDelegate {
 
     private ItemAdapter itemAdapter;
     private ActionBarDrawerToggle drawerToggle;
@@ -43,6 +45,7 @@ public class BloclyActivity extends AppCompatActivity implements NavigationDrawe
         setSupportActionBar(toolbar);
 
         itemAdapter = new ItemAdapter();
+        itemAdapter.setMyDelegate(this);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv_activity_blocly);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -163,4 +166,33 @@ public class BloclyActivity extends AppCompatActivity implements NavigationDrawe
         drawerLayout.closeDrawers();
         Toast.makeText(this, "Show RSS Items from "+ rssFeed.getTitle(), Toast.LENGTH_SHORT).show();
     }
+//    ItemAdapterDelegate
+
+    @Override
+    public void DidSelectVisitSite(ItemAdapter itemAdapter, RssItem rssItem) {
+        Toast.makeText(BloclyActivity.this, "Visit Site: " + rssItem.getUrl(), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void DidExpandOrContract(ItemAdapter itemAdapter, boolean expand) {
+        if (expand){
+            Toast.makeText(BloclyActivity.this, "Expanding Item", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(BloclyActivity.this, "Contracting Item", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+    @Override
+    public void DidCheckOrFavorite(ItemAdapter itemAdapter, String name, boolean checked) {
+        String whichButton;
+        if (name.contains("favorite")){
+            whichButton = "favorite";
+        }
+        else{
+            whichButton = "Archived";
+        }
+        Toast.makeText(BloclyActivity.this, (checked ? " " : "Un") + whichButton + " this Item" , Toast.LENGTH_SHORT).show();
+    }
+
 }

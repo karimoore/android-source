@@ -12,11 +12,12 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+
+import java.lang.ref.WeakReference;
 
 import io.bloc.android.blocly.BloclyApplication;
 import io.bloc.android.blocly.R;
@@ -29,6 +30,15 @@ import io.bloc.android.blocly.api.model.RssItem;
  */
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterViewHolder> {
     private static  String TAG = ItemAdapter.class.getSimpleName();
+
+    public static interface ItemAdapterDelegate {
+        public void DidSelectVisitSite(ItemAdapter itemAdapter, RssItem rssItem);
+        public void DidExpandOrContract(ItemAdapter itemAdapter, boolean expand);
+        public void DidCheckOrFavorite(ItemAdapter itemAdapter, String name, boolean checked);
+    }
+
+    WeakReference<ItemAdapterDelegate> mDelegate;
+
     // #6
     @Override
     public ItemAdapterViewHolder onCreateViewHolder(ViewGroup viewGroup, int index) {
@@ -48,7 +58,16 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
     public int getItemCount() {
         return BloclyApplication.getSharedDataSource().getItems().size();
     }
+    public ItemAdapterDelegate getMyDelegate() {
+        if (mDelegate == null){
+            return null;
+        }
+        return mDelegate.get();
+    }
 
+    public void setMyDelegate(ItemAdapterDelegate delegate) {
+        this.mDelegate = new WeakReference<ItemAdapterDelegate>(delegate);
+    }
     // #9
     class ItemAdapterViewHolder extends RecyclerView.ViewHolder implements ImageLoadingListener, View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 
@@ -137,9 +156,11 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
         @Override
         public void onClick(View view){
             if (view == itemView){
+                getMyDelegate().DidExpandOrContract(ItemAdapter.this, !contentExpanded);
                 animateContent(!contentExpanded);
             } else {
-                Toast.makeText(view.getContext(), "Visit " + rssItem.getUrl(), Toast.LENGTH_SHORT).show();
+                getMyDelegate().DidSelectVisitSite(ItemAdapter.this, rssItem);
+                //Toast.makeText(view.getContext(), "Visit " + rssItem.getUrl(), Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -147,7 +168,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             String idName = buttonView.getResources().getResourceName(buttonView.getId());
-            Log.v(TAG, idName + " in " + rssItem.getTitle() + " has been: " + (isChecked ? "checked" : "unchecked"));
+            getMyDelegate().DidCheckOrFavorite(ItemAdapter.this, idName, isChecked);
 
         }
 /*
