@@ -201,7 +201,7 @@ public class BloclyActivity extends AppCompatActivity
         }
 
         if (itemAdapter.getExpandedItem() != rssItem){ //new item to expand
-            positionToContract = BloclyApplication.getSharedDataSource().getItems().indexOf(rssItem);
+            positionToExpand = BloclyApplication.getSharedDataSource().getItems().indexOf(rssItem);
             itemAdapter.setExpandedItem(rssItem);
         } else {
             itemAdapter.setExpandedItem(null);  //previously expanded
