@@ -17,15 +17,21 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import io.bloc.android.blocly.BloclyApplication;
 import io.bloc.android.blocly.R;
 import io.bloc.android.blocly.api.model.RssFeed;
+import io.bloc.android.blocly.api.model.RssItem;
 import io.bloc.android.blocly.ui.adapter.ItemAdapter;
 import io.bloc.android.blocly.ui.adapter.NavigationDrawerAdapter;
 
 /**
  * Created by Kari on 10/5/2015.
  */
-public class BloclyActivity extends AppCompatActivity implements NavigationDrawerAdapter.NavigationDrawerAdapterDelegate {
+public class BloclyActivity extends AppCompatActivity
+        implements
+        NavigationDrawerAdapter.NavigationDrawerAdapterDelegate,
+        ItemAdapter.DataSource,
+        ItemAdapter.Delegate {
 
     private ItemAdapter itemAdapter;
     private ActionBarDrawerToggle drawerToggle;
@@ -43,6 +49,9 @@ public class BloclyActivity extends AppCompatActivity implements NavigationDrawe
         setSupportActionBar(toolbar);
 
         itemAdapter = new ItemAdapter();
+        itemAdapter.setDataSource(this);
+        itemAdapter.setDelegate(this);
+
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv_activity_blocly);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -162,5 +171,47 @@ public class BloclyActivity extends AppCompatActivity implements NavigationDrawe
     public void didSelectFeed(NavigationDrawerAdapter adapter, RssFeed rssFeed) {
         drawerLayout.closeDrawers();
         Toast.makeText(this, "Show RSS Items from "+ rssFeed.getTitle(), Toast.LENGTH_SHORT).show();
+    }
+
+//    ItemAdapter.DataSource interface methods
+    @Override
+    public RssItem getRssItem(ItemAdapter itemAdapter, int position) {
+        return BloclyApplication.getSharedDataSource().getItems().get(position);
+    }
+
+    @Override
+    public RssFeed getRssFeed(ItemAdapter itemAdapter, int position) {
+        return BloclyApplication.getSharedDataSource().getFeeds().get(0);
+    }
+
+    @Override
+    public int getItemCount(ItemAdapter itemAdapter) {
+        return BloclyApplication.getSharedDataSource().getItems().size();
+    }
+
+//    ItemAdapter.Delegate interface methods
+    @Override
+    public void onItemClicked(ItemAdapter itemAdapter, RssItem rssItem) {
+        int positionToExpand = -1;
+        int positionToContract = -1;
+
+        if (itemAdapter.getExpandedItem() != null){ //already expanded
+            positionToContract = BloclyApplication.getSharedDataSource().getItems().indexOf(itemAdapter.getExpandedItem());
+
+        }
+
+        if (itemAdapter.getExpandedItem() != rssItem){ //new item to expand
+            positionToContract = BloclyApplication.getSharedDataSource().getItems().indexOf(rssItem);
+            itemAdapter.setExpandedItem(rssItem);
+        } else {
+            itemAdapter.setExpandedItem(null);  //previously expanded
+        }
+
+        if (positionToContract > -1){
+            itemAdapter.notifyItemChanged(positionToContract);
+        }
+        if (positionToExpand > -1){
+            itemAdapter.notifyItemChanged(positionToExpand);
+        }
     }
 }

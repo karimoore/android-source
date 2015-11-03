@@ -18,9 +18,9 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
-import io.bloc.android.blocly.BloclyApplication;
+import java.lang.ref.WeakReference;
+
 import io.bloc.android.blocly.R;
-import io.bloc.android.blocly.api.DataSource;
 import io.bloc.android.blocly.api.model.RssFeed;
 import io.bloc.android.blocly.api.model.RssItem;
 
@@ -28,28 +28,73 @@ import io.bloc.android.blocly.api.model.RssItem;
  * Created by Kari on 10/13/2015.
  */
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterViewHolder> {
-    private static  String TAG = ItemAdapter.class.getSimpleName();
-    // #6
+    public static interface DataSource {
+        public RssItem getRssItem(ItemAdapter itemAdapter, int position);
+        public RssFeed getRssFeed(ItemAdapter itemAdapter, int position);
+        public int getItemCount(ItemAdapter itemAdapter);
+    }
+
+    public static interface Delegate {
+        public void onItemClicked(ItemAdapter itemAdapter, RssItem rssItem);
+    }
+
+    private static String TAG = ItemAdapter.class.getSimpleName();
+    private RssItem expandedItem = null;
+    private WeakReference<Delegate> delegate;
+    private WeakReference<DataSource> dataSource;
+
+    public Delegate getDelegate() {
+        if (delegate == null){
+            return null;
+        }
+        return delegate.get();
+    }
+
+    public void setDelegate(Delegate delegate) {
+        this.delegate = new WeakReference<Delegate>(delegate);
+    }
+
+    public DataSource getDataSource() {
+        if (dataSource == null){
+            return null;
+        }
+        return dataSource.get();
+    }
+
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = new WeakReference<DataSource>(dataSource);
+    }
+
+    public void setExpandedItem(RssItem expandedItem){
+        this.expandedItem = expandedItem;
+    }
+    public RssItem getExpandedItem(){
+        return expandedItem;
+    }
     @Override
     public ItemAdapterViewHolder onCreateViewHolder(ViewGroup viewGroup, int index) {
         View inflate = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.rss_item, viewGroup, false);
         return new ItemAdapterViewHolder(inflate);
     }
 
-    // #7
     @Override
     public void onBindViewHolder(ItemAdapterViewHolder itemAdapterViewHolder, int index) {
-        DataSource sharedDataSource = BloclyApplication.getSharedDataSource();
-        itemAdapterViewHolder.update(sharedDataSource.getFeeds().get(0), sharedDataSource.getItems().get(index));
+        if (getDataSource() == null){
+            return;
+        }
+        RssItem rssItem = getDataSource().getRssItem(this, index);
+        RssFeed rssFeed = getDataSource().getRssFeed(this, index);
+        itemAdapterViewHolder.update(rssFeed, rssItem);
     }
 
-    // #8
     @Override
     public int getItemCount() {
-        return BloclyApplication.getSharedDataSource().getItems().size();
+        if (getDataSource() == null){
+            return 0;
+        }
+        return getDataSource().getItemCount(this);
     }
 
-    // #9
     class ItemAdapterViewHolder extends RecyclerView.ViewHolder implements ImageLoadingListener, View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 
         boolean contentExpanded;
@@ -105,6 +150,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
             else {
                 headerWrapper.setVisibility(View.GONE);
             }
+            animateContent(getExpandedItem() == rssItem);
         }
         /*
          * ImageLoadingListener
@@ -135,9 +181,11 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
          * OnClickListener
          */
         @Override
-        public void onClick(View view){
+        public void onClick(View view) {
             if (view == itemView){
-                animateContent(!contentExpanded);
+                if (getDelegate() != null){
+                    getDelegate().onItemClicked(ItemAdapter.this, rssItem);
+                }
             } else {
                 Toast.makeText(view.getContext(), "Visit " + rssItem.getUrl(), Toast.LENGTH_SHORT).show();
             }
