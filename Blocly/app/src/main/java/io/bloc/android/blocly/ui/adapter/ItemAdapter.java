@@ -43,6 +43,26 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
     private WeakReference<Delegate> delegate;
     private WeakReference<DataSource> dataSource;
 
+    private int collapsedItemHeight;
+    private int expandedItemHeight;
+
+    public int getCollapsedItemHeight() {
+        return collapsedItemHeight;
+    }
+
+    public void setCollapsedItemHeight(int collapsedHeight) {
+        this.collapsedItemHeight = collapsedHeight;
+    }
+
+    public int getExpandedItemHeight() {
+        return expandedItemHeight;
+    }
+
+    public void setExpandedItemHeight(int expandedHeight) {
+        this.expandedItemHeight = expandedHeight;
+    }
+
+
     public Delegate getDelegate() {
         if (delegate == null){
             return null;
@@ -211,6 +231,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
             int startingHeight = expandedContentWrapper.getMeasuredHeight();
             int finalHeight = content.getMeasuredHeight();
             if (expand) {
+                setCollapsedItemHeight(itemView.getHeight());
                 startingHeight = finalHeight;
                 expandedContentWrapper.setAlpha(0f);
                 expandedContentWrapper.setVisibility(View.VISIBLE);
@@ -240,6 +261,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
                     if (animatedFraction == 1f){
                         if (expand) {
                             content.setVisibility(View.GONE);
+                            // the animation is complete, so set expanded height
+                            setExpandedItemHeight(itemView.getHeight());
                         } else {
                             expandedContentWrapper.setVisibility(View.GONE);
                         }
