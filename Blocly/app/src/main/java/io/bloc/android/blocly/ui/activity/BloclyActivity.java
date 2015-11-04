@@ -1,5 +1,6 @@
 package io.bloc.android.blocly.ui.activity;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -33,6 +34,12 @@ public class BloclyActivity extends AppCompatActivity
         ItemAdapter.DataSource,
         ItemAdapter.Delegate {
 
+    public enum MenuOption {
+        MENU_OPTION_SHARE,
+        MENU_OPTION_SEARCH,
+        MENU_OPTION_REFRESH,
+        MENU_OPTION_MARKASREAD
+    }
     private ItemAdapter itemAdapter;
     private ActionBarDrawerToggle drawerToggle;
     private DrawerLayout drawerLayout;
@@ -150,13 +157,27 @@ public class BloclyActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.blocly, menu);
         this.menu = menu;
+        // OnCreate disable/hide share menu item
+        MenuItem shareItem = menu.getItem(MenuOption.MENU_OPTION_SHARE.ordinal());
+        shareItem.setEnabled(false);
+        shareItem.setVisible(false);
+
         return super.onCreateOptionsMenu(menu);
+
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         if (drawerToggle.onOptionsItemSelected(item)){
             return true;
+        }
+        if (item.getItemId() == R.id.action_share){
+            // share with application
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.putExtra(Intent.EXTRA_TEXT, "Checkout this link: " + itemAdapter.getExpandedItem().getUrl());
+            sendIntent.setType("text/plain");
+            startActivity(sendIntent);
         }
         Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
         return super.onOptionsItemSelected(item);
@@ -202,13 +223,22 @@ public class BloclyActivity extends AppCompatActivity
             if (viewToContract == null){
                 positionToContract = -1;
             }
+            //disable the share button
         }
 
         if (itemAdapter.getExpandedItem() != rssItem){ //new item to expand
             positionToExpand = BloclyApplication.getSharedDataSource().getItems().indexOf(rssItem);
             itemAdapter.setExpandedItem(rssItem);
+            //enable share
+            MenuItem shareItem = menu.getItem(MenuOption.MENU_OPTION_SHARE.ordinal());
+            shareItem.setEnabled(true);
+            shareItem.setVisible(true);
         } else {
             itemAdapter.setExpandedItem(null);  //previously expanded
+            //disable share
+            MenuItem shareItem = menu.getItem(MenuOption.MENU_OPTION_SHARE.ordinal());
+            shareItem.setEnabled(false);
+            shareItem.setVisible(false);
         }
 
         if (positionToContract > -1){
