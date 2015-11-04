@@ -2,6 +2,8 @@ package io.bloc.android.blocly.ui.activity;
 
 import android.animation.ValueAnimator;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -13,6 +15,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,6 +23,7 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import io.bloc.android.blocly.BloclyApplication;
 import io.bloc.android.blocly.R;
@@ -44,9 +48,11 @@ public class BloclyActivity extends AppCompatActivity
     private Menu menu;
     private View overflowButton;
     private RecyclerView recyclerView;
-/*
-    Private methods
-    */
+    private Log log;
+
+    /*
+        Private methods
+        */
     private  void animateShareItem(final boolean enabled){
         MenuItem shareItem = menu.findItem(R.id.action_share);
         if (shareItem.isEnabled() == enabled){
@@ -167,6 +173,42 @@ public class BloclyActivity extends AppCompatActivity
         navigationRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         navigationRecyclerView.setItemAnimator(new DefaultItemAnimator());
         navigationRecyclerView.setAdapter(navigationDrawerAdapter);
+
+
+        PackageManager pm = getPackageManager();
+        Intent intentPhoneCall = new Intent(Intent.ACTION_CALL,Uri.parse("tel:" + "1231231234"));
+        Intent intentOpenWeb = new Intent(Intent.ACTION_VIEW);
+        intentOpenWeb.setData(Uri.parse("http://www.google.com"));
+        Intent intentComposeEmail = new Intent(Intent.ACTION_SEND);
+        intentComposeEmail.setType("plain/text");
+        intentComposeEmail.putExtra(Intent.EXTRA_EMAIL, new String[]{"abc@xyz.com"});
+        //intentComposeEmail.setData(Uri.parse("mailto:kari@emmster.com"));
+
+        List<ResolveInfo> activities = pm.queryIntentActivities(intentPhoneCall,PackageManager.MATCH_DEFAULT_ONLY);
+        int size = activities.size();
+        int i = 0;
+        Log.i("PHONE apps", "Number: " + size);
+        for(ResolveInfo infos : activities) {
+            String name = infos.activityInfo.applicationInfo.loadLabel(getPackageManager()).toString();
+            Log.i("PHONE app", "name: " + name);
+        }
+        activities = pm.queryIntentActivities(intentOpenWeb,PackageManager.MATCH_DEFAULT_ONLY);
+        size = activities.size();
+        i = 0;
+        Log.i("WEB apps", "Number: " + size);
+        for(ResolveInfo infos : activities) {
+            String name = infos.activityInfo.applicationInfo.loadLabel(getPackageManager()).toString();
+            Log.i("WEB app", "name: " + name);
+        }
+        activities = pm.queryIntentActivities(intentComposeEmail,PackageManager.MATCH_DEFAULT_ONLY);
+        size = activities.size();
+        i = 0;
+        Log.i("EMAIL apps", "Number: " + size);
+        for(ResolveInfo infos : activities) {
+            String name = infos.activityInfo.applicationInfo.loadLabel(getPackageManager()).toString();
+            Log.i("EMAIL app", "name: " + name);
+        }
+
     }
     @Override
     protected void onPostCreate(Bundle savedInstanceState){
