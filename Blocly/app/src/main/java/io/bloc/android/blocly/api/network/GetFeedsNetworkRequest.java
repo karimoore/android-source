@@ -28,10 +28,21 @@ public class GetFeedsNetworkRequest extends NetworkRequest {
             try {
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
                 String line = bufferedReader.readLine();
+                int count = 0;
+                int index = -1;
+                String countLine = null;
                 while (line != null) {
                     Log.v(getClass().getSimpleName(), "Line: " + line);
+                    countLine = line;
                     line = bufferedReader.readLine();
                 }
+                index = countLine.indexOf("</item>");
+                while (index != -1) {
+                    count++;
+                    countLine = countLine.substring(index + 6);
+                    index = countLine.indexOf("</item>");
+                }
+                Log.v(getClass().getSimpleName(), "Number of items is: " + count);
                 bufferedReader.close();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -41,4 +52,5 @@ public class GetFeedsNetworkRequest extends NetworkRequest {
         }
         return null;
     }
+
 }
