@@ -10,7 +10,8 @@ import java.lang.ref.WeakReference;
 
 import io.bloc.android.blocly.BloclyApplication;
 import io.bloc.android.blocly.R;
-import io.bloc.android.blocly.api.model.RssFeed;
+//import io.bloc.android.blocly.api.model.RssFeed;
+import io.bloc.android.blocly.api.network.GetFeedsNetworkRequest.RssFeed;
 
 /**
  * Created by Kari on 10/28/2015.
@@ -104,7 +105,7 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
                         R.string.navigation_option_archived};
                 title.setText(titleTexts[position]);
             } else {
-                title.setText(rssFeed.getTitle());
+                title.setText("Title");//TO DO: rssFeed.getTitle());
             }
         }
         @Override

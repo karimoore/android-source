@@ -18,7 +18,7 @@ import javax.xml.parsers.ParserConfigurationException;
 /**
  * Created by Kari on 11/4/2015.
  */
-public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkRequest.FeedResponse>> {
+public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkRequest.RssFeed>> {
 
     public static final int ERROR_PARSING = 3;
 
@@ -38,8 +38,8 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
         this.feedUrls = feedUrls;
     }
     @Override
-    public List<FeedResponse> performRequest() {
-        List<FeedResponse> responseFeeds = new ArrayList<FeedResponse>(feedUrls.length);
+    public List<RssFeed> performRequest() {
+        List<RssFeed> responseFeeds = new ArrayList<RssFeed>(feedUrls.length);
 
         for (String feedUrlString : feedUrls){
             InputStream inputStream = openStream(feedUrlString);
@@ -54,7 +54,7 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
                 String channelURL = optFirstTagFromDocument(xmlDocument, XML_TAG_LINK);
 
                 NodeList allItemNodes = xmlDocument.getElementsByTagName(XML_TAG_ITEM);
-                List<ItemResponse> responseItems = new ArrayList<ItemResponse>(allItemNodes.getLength());
+                List<RssItem> responseItems = new ArrayList<RssItem>(allItemNodes.getLength());
                 for (int itemIndex = 0; itemIndex < allItemNodes.getLength(); itemIndex++){
                     String itemURL = null;
                     String itemTitle = null;
@@ -85,20 +85,11 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
                             itemGUID = tagNode.getTextContent();
                         }
                     }
-                    responseItems.add(new ItemResponse(itemURL, itemTitle, itemDescription,
+                    responseItems.add(new RssItem(itemURL, itemTitle, itemDescription,
                             itemGUID, itemPubDate, itemEnclosureURL, itemEnclosureMIMEType));
                 }
-                responseFeeds.add(new FeedResponse(feedUrlString, channelTitle, channelURL, channelDescription, responseItems));
-/*
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                String line = bufferedReader.readLine();
-                while (line != null) {
-                    Log.v(getClass().getSimpleName(), "Line: " + line);
-                    line = bufferedReader.readLine();
+                responseFeeds.add(new RssFeed(feedUrlString, channelTitle, channelURL, channelDescription, responseItems));
 
-                }
-                bufferedReader.close();
-*/
             } catch (IOException e) {
                 e.printStackTrace();
                 setErrorCode(ERROR_IO);
@@ -124,26 +115,46 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
         return null;
     }
 
-    public static class FeedResponse {
+    public static class RssFeed {
         public final String channelFeedURL;
 
 
         public final String channelTitle;
         public final String channelURL;
         public final String channelDescription;
-        public final List<ItemResponse> channelItems;
+        public final List<RssItem> channelItems;
 
-        FeedResponse(String channelFeedURL, String channelTitle, String channelURL,
-                     String channelDescription, List<ItemResponse> channelItems) {
+        RssFeed(String channelFeedURL, String channelTitle, String channelURL,
+                     String channelDescription, List<RssItem> channelItems) {
             this.channelDescription = channelDescription;
             this.channelFeedURL = channelFeedURL;
             this.channelTitle = channelTitle;
             this.channelURL = channelURL;
             this.channelItems = channelItems;
         }
+
+        public String getDescription() {
+            return channelDescription;
+        }
+
+        public String getChannelFeedURL() {
+            return channelFeedURL;
+        }
+
+        public List<RssItem> getChannelItems() {
+            return channelItems;
+        }
+
+        public String getTitle() {
+            return channelTitle;
+        }
+
+        public String getChannelURL() {
+            return channelURL;
+        }
     }
 
-    public static  class ItemResponse {
+    public static  class RssItem {
         public final String itemURL;
         public final String itemTitle;
         public final String itemDescription;
@@ -151,7 +162,7 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
         public final String itemPubDate;
         public final String itemEnclosureURL;
 
-        public ItemResponse(String itemURL, String itemTitle,String itemDescription,
+        public RssItem(String itemURL, String itemTitle,String itemDescription,
                             String itemGUID, String itemPubDate, String itemEnclosureURL,
                             String itemEnclosureMIMEType) {
             this.itemDescription = itemDescription;
@@ -164,5 +175,33 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
         }
 
         public final String itemEnclosureMIMEType;
+
+        public String getDescription() {
+            return itemDescription;
+        }
+
+        public String getItemEnclosureMIMEType() {
+            return itemEnclosureMIMEType;
+        }
+
+        public String getImageUrl() {
+            return itemEnclosureURL;
+        }
+
+        public String getItemGUID() {
+            return itemGUID;
+        }
+
+        public String getItemPubDate() {
+            return itemPubDate;
+        }
+
+        public String getTitle() {
+            return itemTitle;
+        }
+
+        public String getUrl() {
+            return itemURL;
+        }
     }
 }

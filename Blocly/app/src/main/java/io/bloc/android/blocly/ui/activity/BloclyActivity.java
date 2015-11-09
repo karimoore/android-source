@@ -23,10 +23,15 @@ import java.util.ArrayList;
 
 import io.bloc.android.blocly.BloclyApplication;
 import io.bloc.android.blocly.R;
-import io.bloc.android.blocly.api.model.RssFeed;
-import io.bloc.android.blocly.api.model.RssItem;
+//import io.bloc.android.blocly.api.model.RssItem;
+import io.bloc.android.blocly.api.network.GetFeedsNetworkRequest.RssFeed;
+import io.bloc.android.blocly.api.network.GetFeedsNetworkRequest.RssItem;
 import io.bloc.android.blocly.ui.adapter.ItemAdapter;
+
 import io.bloc.android.blocly.ui.adapter.NavigationDrawerAdapter;
+
+//import io.bloc.android.blocly.api.model.RssFeed;
+//import io.bloc.android.blocly.api.model.RssItem;
 
 /**
  * Created by Kari on 10/5/2015.
