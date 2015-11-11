@@ -15,6 +15,23 @@ public class RssItemTable extends Table {
     private static final String COLUMN_FAVORITE = "is_favorite";
     private static final String COLUMN_ARCHIVED = "is_archived";
 
+    public String getInsertOrReplaceStatement() {
+        return "INSERT OR REPLACE INTO " +getName() + " ("
+                + COLUMN_ID + ", "
+                + COLUMN_LINK + " ,"
+                + COLUMN_TITLE + ", "
+                + COLUMN_DESCRIPTION + " ,"
+                + COLUMN_GUID + ", "
+                + COLUMN_PUB_DATE + ", "
+                + COLUMN_ENCLOSURE + ", "
+                + COLUMN_MIME_TYPE + ", "
+                + COLUMN_RSS_FEED + ", "
+                + COLUMN_FAVORITE + ", "
+                + COLUMN_ARCHIVED + ") VALUES (";
+
+    }
+
+
     @Override
     public String getName() {
         return "rss_items";

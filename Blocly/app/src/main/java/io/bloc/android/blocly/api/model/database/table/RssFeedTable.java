@@ -32,4 +32,16 @@ public class RssFeedTable extends Table {
     public void onUpgrade(SQLiteDatabase writableDatabase, int oldVersion, int newVersion) {
         super.onUpgrade(writableDatabase, oldVersion, newVersion);
     }
+
+    public String getInsertOrReplaceStatement() {
+        return "INSERT OR REPLACE INTO " + getName() + " ("
+                + COLUMN_ID + ", "
+                + COLUMN_LINK + ", "
+                + COLUMN_TITLE + ", "
+                + COLUMN_DESCRIPTION + ", "
+                + COLUMN_FEED_URL + ") VALUES (";
+
+
+    }
+
 }

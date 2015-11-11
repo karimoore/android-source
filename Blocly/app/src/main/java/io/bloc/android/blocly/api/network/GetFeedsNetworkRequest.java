@@ -125,9 +125,8 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
     }
 
     public static class FeedResponse {
+
         public final String channelFeedURL;
-
-
         public final String channelTitle;
         public final String channelURL;
         public final String channelDescription;
@@ -141,6 +140,26 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
             this.channelURL = channelURL;
             this.channelItems = channelItems;
         }
+        public String getChannelFeedURL() {
+            return channelFeedURL;
+        }
+
+        public String getChannelDescription() {
+            return channelDescription;
+        }
+
+        public List<ItemResponse> getChannelItems() {
+            return channelItems;
+        }
+
+        public String getChannelTitle() {
+            return channelTitle;
+        }
+
+        public String getChannelURL() {
+            return channelURL;
+        }
+
     }
 
     public static  class ItemResponse {
@@ -150,6 +169,7 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
         public final String itemGUID;
         public final String itemPubDate;
         public final String itemEnclosureURL;
+        public final String itemEnclosureMIMEType;
 
         public ItemResponse(String itemURL, String itemTitle,String itemDescription,
                             String itemGUID, String itemPubDate, String itemEnclosureURL,
@@ -163,6 +183,32 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
             this.itemEnclosureMIMEType = itemEnclosureMIMEType;
         }
 
-        public final String itemEnclosureMIMEType;
+        public String getItemDescription() {
+            return itemDescription;
+        }
+
+        public String getItemEnclosureMIMEType() {
+            return itemEnclosureMIMEType;
+        }
+
+        public String getItemEnclosureURL() {
+            return itemEnclosureURL;
+        }
+
+        public String getItemGUID() {
+            return itemGUID;
+        }
+
+        public String getItemPubDate() {
+            return itemPubDate;
+        }
+
+        public String getItemTitle() {
+            return itemTitle;
+        }
+
+        public String getItemURL() {
+            return itemURL;
+        }
     }
 }

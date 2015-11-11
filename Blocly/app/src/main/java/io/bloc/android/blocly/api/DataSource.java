@@ -1,5 +1,6 @@
 package io.bloc.android.blocly.api;
 
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
@@ -43,7 +44,40 @@ public class DataSource {
                     BloclyApplication.getSharedInstance().deleteDatabase("blocly_db");
                 }
                 SQLiteDatabase writableDatabase = databaseOpenHelper.getWritableDatabase();
-                new GetFeedsNetworkRequest("http://feeds.feedburner.com/androidcentral?format=xml").performRequest();
+                List<GetFeedsNetworkRequest.FeedResponse> realFeed = new GetFeedsNetworkRequest("http://feeds.feedburner.com/androidcentral?format=xml").performRequest();
+
+                int feedCount = 1;
+                for (GetFeedsNetworkRequest.FeedResponse feedResponse: realFeed){
+                    try {
+                        writableDatabase.execSQL(rssFeedTable.getInsertOrReplaceStatement() +
+                                "'" + feedCount +"','"
+                                + feedResponse.getChannelURL() +"','"
+                                + feedResponse.getChannelTitle() +"','"
+                                + feedResponse.getChannelDescription() +"','"
+                                + feedResponse.channelFeedURL +"')");
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                    List<GetFeedsNetworkRequest.ItemResponse> realItems = feedResponse.getChannelItems();
+                    int itemCount = 1;
+                    for(GetFeedsNetworkRequest.ItemResponse itemResponse: realItems){
+                        writableDatabase.execSQL(rssItemTable.getInsertOrReplaceStatement() +
+                                "'" + itemCount +"','"
+                                + "test"/*itemResponse.getItemURL()*/ +"','"
+                                + "title"/*itemResponse.getItemTitle()*/ +"','"
+                                + "description"/*itemResponse.getItemDescription()*/ +"','"
+                                + "guid" /*itemResponse.getItemGUID() */+"','"
+                                + itemResponse.getItemPubDate() +"','"
+                                + itemResponse.getItemEnclosureURL() +"','"
+                                + itemResponse.getItemEnclosureMIMEType() +"','"
+                                + feedCount +"','"
+                                + "0" +"','"
+                                + "0" +"')");
+                        itemCount++;
+                    }
+                    feedCount++;
+                }
+
             }
         }).start();
     }
