@@ -1,6 +1,8 @@
 package io.bloc.android.blocly.api;
 
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -74,6 +76,19 @@ public class DataSource {
                             .setPubDate(itemPubDate)
                             .setRssFeed(androidCentralFeedId)
                             .insert(writableDatabase);
+                }
+
+                // try to query database
+                Cursor cursor = writableDatabase.query(false, "rss_items", new String[]{"pub_date","title"},
+                        null, null, null, null, "pub_date DESC", "10");
+                if (cursor == null)
+                    return;
+
+                try{
+                    if (cursor.moveToFirst()) // Here we try to move to the first record
+                        Log.i("QueryDatabase", "Here is first title: " + cursor.getString(1) + " Out of total rows: "+ cursor.getCount());
+                }finally {
+                    cursor.close();
                 }
 
 
