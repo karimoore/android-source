@@ -3,6 +3,7 @@ package io.bloc.android.blocly.api;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -93,6 +94,13 @@ public class DataSource {
                 BloclyApplication.getSharedInstance().sendBroadcast(new Intent(ACTION_DOWNLOAD_COMPLETED));
             }
         }).start();
+        Cursor myCursor = rssItemTable.fetchArchivedItems(databaseOpenHelper.getReadableDatabase());
+        myCursor.moveToFirst();
+        while (!myCursor.isLast()){
+            Log.v("Archive query ", myCursor.getString(0)+ "is archived");
+            myCursor.moveToNext();
+        }
+        myCursor.close();
     }
 
     public List<RssFeed> getFeeds() {

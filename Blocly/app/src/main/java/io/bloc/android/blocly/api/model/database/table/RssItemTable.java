@@ -83,6 +83,14 @@ public class RssItemTable extends Table {
         return getBoolean(cursor, COLUMN_ARCHIVED);
     }
 
+/*    public Cursor query (boolean distinct, String table, String[] columns, String selection,
+                         String[] selectionArgs, String groupBy, String having,
+                         String orderBy, String limit)*/
+    public Cursor fetchArchivedItems(SQLiteDatabase readOnlyDatabase){
+        return readOnlyDatabase.query(true, NAME, new String[]{COLUMN_TITLE}, COLUMN_ARCHIVED + " = ?",
+                new String[]{"1"}, null, null, null, null);
+    }
+
     private static final String NAME = "rss_items";
     private static final String COLUMN_LINK = "link";
     private static final String COLUMN_TITLE = "title";
