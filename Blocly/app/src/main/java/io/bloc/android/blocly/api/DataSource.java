@@ -1,5 +1,7 @@
 package io.bloc.android.blocly.api;
 
+import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.text.DateFormat;
@@ -11,7 +13,6 @@ import java.util.Locale;
 
 import io.bloc.android.blocly.BloclyApplication;
 import io.bloc.android.blocly.BuildConfig;
-import io.bloc.android.blocly.R;
 import io.bloc.android.blocly.api.model.RssFeed;
 import io.bloc.android.blocly.api.model.RssItem;
 import io.bloc.android.blocly.api.model.database.DatabaseOpenHelper;
@@ -23,6 +24,8 @@ import io.bloc.android.blocly.api.network.GetFeedsNetworkRequest;
  * Created by Kari on 10/12/2015.
  */
 public class DataSource {
+
+    public static final String ACTION_DOWNLOAD_COMPLETED = DataSource.class.getCanonicalName().concat(".ACTION_DOWNLOAD_COMPLETED");
 
     private DatabaseOpenHelper databaseOpenHelper;
     private RssFeedTable rssFeedTable;
@@ -39,7 +42,6 @@ public class DataSource {
 
         feeds = new ArrayList<RssFeed>();
         items = new ArrayList<RssItem>();
-        createFakeData();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -56,6 +58,7 @@ public class DataSource {
                         .setTitle(androidCentral.channelTitle)
                         .setDescription(androidCentral.channelDescription)
                         .insert(writableDatabase);
+                List<RssItem> newRSSItems = new ArrayList<RssItem>();
                 for (GetFeedsNetworkRequest.ItemResponse itemResponse : androidCentral.channelItems){
                     long itemPubDate = System.currentTimeMillis();
                     DateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy kk:mm:ss z", Locale.ENGLISH);
@@ -64,7 +67,7 @@ public class DataSource {
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
-                    new RssItemTable.Builder()
+                    long newItemRowId = new RssItemTable.Builder()
                             .setTitle(itemResponse.itemTitle)
                             .setDescription(itemResponse.itemDescription)
                             .setEnclosure(itemResponse.itemEnclosureURL)
@@ -74,9 +77,20 @@ public class DataSource {
                             .setPubDate(itemPubDate)
                             .setRssFeed(androidCentralFeedId)
                             .insert(writableDatabase);
+                    Cursor itemCursor = rssItemTable.fetchRow(databaseOpenHelper.getReadableDatabase(), newItemRowId);
+                    itemCursor.moveToFirst();
+                    RssItem newRssItem = itemFromCursor(itemCursor);
+                    newRSSItems.add(newRssItem);
+                    itemCursor.close();
+
                 }
-
-
+                Cursor androidCentralCursor = rssFeedTable.fetchRow(databaseOpenHelper.getReadableDatabase(), androidCentralFeedId);
+                androidCentralCursor.moveToFirst();
+                RssFeed androidCentralRSSFeed = feedFromCursor(androidCentralCursor);
+                androidCentralCursor.close();
+                items.addAll(newRSSItems);
+                feeds.add(androidCentralRSSFeed);
+                BloclyApplication.getSharedInstance().sendBroadcast(new Intent(ACTION_DOWNLOAD_COMPLETED));
             }
         }).start();
     }
@@ -89,17 +103,18 @@ public class DataSource {
         return items;
     }
 
-    void createFakeData() {
-        feeds.add(new RssFeed("My Favorite Feed",
-                "This feed is just incredible, I can't even begin to tell you…",
-                "http://favoritefeed.net", "http://feeds.feedburner.com/favorite_feed?format=xml"));
-        for (int i = 0; i < 10; i++) {
-            items.add(new RssItem(String.valueOf(i),
-                    BloclyApplication.getSharedInstance().getString(R.string.placeholder_headline) + " " +i,
-                    BloclyApplication.getSharedInstance().getString(R.string.placeholder_content),
-                    "http://favoritefeed.net?story_id=an-incredible-news-story",
-                    "http://rs1img.memecdn.com/silly-dog_o_511213.jpg",
-                    0L, System.currentTimeMillis(), false, false, false));
-        }
+    static RssFeed feedFromCursor(Cursor cursor){
+        return new RssFeed(RssFeedTable.getTitle(cursor), RssFeedTable.getDescription(cursor),
+                RssFeedTable.getSiteURL(cursor), RssFeedTable.getFeedURL(cursor));
+
+    }
+    static RssItem itemFromCursor(Cursor cursor){
+        return new RssItem(RssItemTable.getGuid(cursor), RssItemTable.getTitle(cursor),
+                RssItemTable.getDescription(cursor), RssItemTable.getLink(cursor),
+                RssItemTable.getEnclosure(cursor),RssItemTable.getRssFeedId(cursor),
+                RssItemTable.getPubDate(cursor), RssItemTable.getFavorite(cursor),
+                RssItemTable.getArchived(cursor));
+
+
     }
 }
