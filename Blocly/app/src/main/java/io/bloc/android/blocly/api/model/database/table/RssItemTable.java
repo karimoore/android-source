@@ -86,9 +86,33 @@ public class RssItemTable extends Table {
 /*    public Cursor query (boolean distinct, String table, String[] columns, String selection,
                          String[] selectionArgs, String groupBy, String having,
                          String orderBy, String limit)*/
-    public Cursor fetchArchivedItems(SQLiteDatabase readOnlyDatabase){
+public Cursor fetchArchivedItems(SQLiteDatabase readOnlyDatabase, long feed){
+    if (feed == -1) {
+        // a 1 means that we want all archived
         return readOnlyDatabase.query(true, NAME, new String[]{COLUMN_TITLE}, COLUMN_ARCHIVED + " = ?",
                 new String[]{"1"}, null, null, null, null);
+    } else {
+        return readOnlyDatabase.query(true, NAME, new String[]{COLUMN_TITLE}, COLUMN_ARCHIVED + " = ? and " + COLUMN_RSS_FEED + "= ?",
+                new String[]{"1", String.valueOf(feed)}, null, null, null, null);
+
+    }
+}
+    public Cursor fetchFavoritedItems(SQLiteDatabase readOnlyDatabase, long feed){
+        if (feed == -1) {
+            return readOnlyDatabase.query(true, NAME, new String[]{COLUMN_TITLE}, COLUMN_FAVORITE + " = ?",
+                    new String[]{"1"}, null, null, null, null);
+        } else {
+            return readOnlyDatabase.query(true, NAME, new String[]{COLUMN_TITLE}, COLUMN_FAVORITE + " = ? and " + COLUMN_RSS_FEED + "= ?",
+                    new String[]{"1", String.valueOf(feed)}, null, null, null, null);
+        }
+    }
+    public Cursor fetchAllItems(SQLiteDatabase readOnlyDatabase, long feed){
+        return readOnlyDatabase.query(true, NAME, new String[]{COLUMN_TITLE}, COLUMN_RSS_FEED + " = ?",
+                new String[]{String.valueOf(feed)}, null, null, null, null);
+    }
+    public Cursor fetchAllItemsLimitOffset(SQLiteDatabase readOnlyDatabase, long feed, int limit, int offset){
+        return readOnlyDatabase.query(true, NAME, new String[]{COLUMN_TITLE}, COLUMN_RSS_FEED + " = ?",
+                new String[]{String.valueOf(feed)}, null, null, null, String.valueOf(offset) + "," +String.valueOf(limit));
     }
 
     private static final String NAME = "rss_items";

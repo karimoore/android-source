@@ -91,16 +91,58 @@ public class DataSource {
                 androidCentralCursor.close();
                 items.addAll(newRSSItems);
                 feeds.add(androidCentralRSSFeed);
+                //get all archived items (-1 means no particular feed is chosen
+                Cursor myCursor = rssItemTable.fetchArchivedItems(databaseOpenHelper.getReadableDatabase(), -1);
+                myCursor.moveToFirst();
+                Log.v("Archive query ", myCursor.getString(0) + "is archived");
+                while (myCursor.moveToNext()){
+                    Log.v("Archive query ", myCursor.getString(0) + "is archived");
+                }
+                myCursor.close();
+                //get all archived items from a particular feed
+                myCursor = rssItemTable.fetchArchivedItems(databaseOpenHelper.getReadableDatabase(),androidCentralFeedId);
+                myCursor.moveToFirst();
+                Log.v("Archived from feed: " + String.valueOf(androidCentralFeedId), myCursor.getString(0) + "is archived");
+                while (myCursor.moveToNext()){
+                    Log.v("Archived from feed: " + String.valueOf(androidCentralFeedId), myCursor.getString(0) + "is archived");
+                }
+                myCursor.close();
+                //get all favorited items
+                myCursor = rssItemTable.fetchFavoritedItems(databaseOpenHelper.getReadableDatabase(), -1);
+                if (myCursor.moveToFirst()) {
+                    Log.v("Favorited items: ", myCursor.getString(0) + "is favorited");
+                    while (myCursor.moveToNext()){
+                        Log.v("Favorited items: ", myCursor.getString(0) + "is favorited");
+                    }
+                } else{
+                    Log.v("NO Favorited items: ", "NO favorited");
+
+                }
+                myCursor.close();
+                //get all favorite items from a particular feed
+                myCursor = rssItemTable.fetchFavoritedItems(databaseOpenHelper.getReadableDatabase(), androidCentralFeedId);
+                if (myCursor.moveToFirst()) {
+                    Log.v("Favorite from feed: " + String.valueOf(androidCentralFeedId), myCursor.getString(0) + "is favorite");
+                    while (myCursor.moveToNext()){
+                        Log.v("Favorite from feed: " + String.valueOf(androidCentralFeedId), myCursor.getString(0) + "is favorite");
+                    }
+                }else {
+                    Log.v("NO Favorited items: ", "NO favorited");
+
+                }
+                myCursor.close();
+                //get all items from a particular feed with limit and offset
+                myCursor = rssItemTable.fetchAllItemsLimitOffset(databaseOpenHelper.getReadableDatabase(),androidCentralFeedId, 5, 2);
+                myCursor.moveToFirst();
+                Log.v("Should be 5 Items: ", myCursor.getString(0) + "is one of five");
+                while (myCursor.moveToNext()){
+                    Log.v("Should be 5 Items: ", myCursor.getString(0) + "is one of five");
+                }
+                myCursor.close();
+
                 BloclyApplication.getSharedInstance().sendBroadcast(new Intent(ACTION_DOWNLOAD_COMPLETED));
             }
         }).start();
-        Cursor myCursor = rssItemTable.fetchArchivedItems(databaseOpenHelper.getReadableDatabase());
-        myCursor.moveToFirst();
-        while (!myCursor.isLast()){
-            Log.v("Archive query ", myCursor.getString(0)+ "is archived");
-            myCursor.moveToNext();
-        }
-        myCursor.close();
     }
 
     public List<RssFeed> getFeeds() {
