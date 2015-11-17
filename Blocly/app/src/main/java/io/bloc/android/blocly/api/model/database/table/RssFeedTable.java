@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
  */
 public class RssFeedTable extends Table {
 
+
     public static class Builder implements Table.Builder {
 
         ContentValues values = new ContentValues();
@@ -55,6 +56,10 @@ public class RssFeedTable extends Table {
     private static final String COLUMN_DESCRIPTION = "description";
     private static final String COLUMN_FEED_URL = "feed_url";
 
+    public static Cursor fetchFeedWithURL(SQLiteDatabase readableDatabase, String feedURL) {
+        return readableDatabase.query(true, NAME, null, COLUMN_FEED_URL + " = ?", new String[]{feedURL},
+                null, null, null, null);
+    }
 
     @Override
     public String getName() {

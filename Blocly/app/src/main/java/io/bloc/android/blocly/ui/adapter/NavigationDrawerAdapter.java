@@ -7,8 +7,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 
-import io.bloc.android.blocly.BloclyApplication;
 import io.bloc.android.blocly.R;
 import io.bloc.android.blocly.api.model.RssFeed;
 
@@ -21,6 +21,11 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
         NAVIGATION_OPTION_FAVORITES,
         NAVIGATION_OPTION_ARCHIVED
     }
+
+    // BloclyActivity implements this
+    public static interface NavigationDrawerAdapterDataSource {
+        public List<RssFeed> getFeeds(NavigationDrawerAdapter adapter);
+    }
     public static interface NavigationDrawerAdapterDelegate {
         public void didSelectNavigationOption(NavigationDrawerAdapter adapter, NavigationOption navigationOption );
         public void didSelectFeed(NavigationDrawerAdapter adapter, RssFeed rssFeed);
@@ -28,6 +33,23 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
 
 
     WeakReference<NavigationDrawerAdapterDelegate> delegate;
+    WeakReference<NavigationDrawerAdapterDataSource> dataSource;
+
+    public NavigationDrawerAdapterDataSource getDataSource() {
+        if (dataSource == null)
+            return null;
+
+        return dataSource.get();
+    }
+
+    public void setDataSource(NavigationDrawerAdapterDataSource dataSource) {
+        this.dataSource = new WeakReference<NavigationDrawerAdapterDataSource>(dataSource);
+    }
+
+    public void setDelegate(WeakReference<NavigationDrawerAdapterDelegate> delegate) {
+        this.delegate = delegate;
+    }
+
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int position) {
@@ -40,15 +62,18 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
         RssFeed rssFeed = null;
         if (position >= NavigationOption.values().length){
             int feedPosition = position - NavigationOption.values().length;
-            rssFeed = BloclyApplication.getSharedDataSource().getFeeds().get(feedPosition);
+            rssFeed = getDataSource().getFeeds(this).get(feedPosition);
         }
         viewHolder.update(position, rssFeed);
     }
 
     @Override
     public int getItemCount() {
+        if (getDataSource() == null){
+            return NavigationOption.values().length;
+        }
         return (NavigationOption.values().length +
-                BloclyApplication.getSharedDataSource().getFeeds().size());
+                getDataSource().getFeeds(this).size());
     }
     public NavigationDrawerAdapterDelegate getDelegate() {
         if (delegate == null){
