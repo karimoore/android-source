@@ -16,6 +16,13 @@ public class RssItemTable extends Table {
                 null, null, COLUMN_PUB_DATE + " DESC", null);
     }
 
+    // fetch all new since last pubDate associated wit the feed feedRowId
+    public static Cursor fetchNewItemsForFeedAfterPubDate(SQLiteDatabase readableDatabase, long feedRowId, long pubDate) {
+        return readableDatabase.query(true, NAME, null, COLUMN_RSS_FEED + " = ? AND " + COLUMN_PUB_DATE + " > ?",
+                new String[]{String.valueOf(feedRowId), String.valueOf(pubDate)},
+                null, null, COLUMN_PUB_DATE + " DESC", null);
+    }
+
     public static class Builder implements Table.Builder {
         ContentValues values = new ContentValues();
 
@@ -53,7 +60,10 @@ public class RssItemTable extends Table {
             return this;
         }
 
+        public long insertNoRepeat(SQLiteDatabase writableDatabase){
+            return writableDatabase.insertWithOnConflict(RssItemTable.NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 
+        }
         @Override
         public long insert(SQLiteDatabase writableDatabase) {
             return writableDatabase.insert(RssItemTable.NAME, null, values);

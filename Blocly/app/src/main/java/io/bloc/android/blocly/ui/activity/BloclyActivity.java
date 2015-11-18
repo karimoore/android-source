@@ -42,6 +42,7 @@ public class BloclyActivity extends AppCompatActivity
         NavigationDrawerAdapter.NavigationDrawerAdapterDataSource {
 
     private SwipeRefreshLayout swipeRefreshLayout;
+    private boolean firstTime;
     private ItemAdapter itemAdapter;
     private ActionBarDrawerToggle drawerToggle;
     private DrawerLayout drawerLayout;
@@ -88,48 +89,82 @@ public class BloclyActivity extends AppCompatActivity
         itemAdapter.setDelegate(this);
 
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.srl_activity_blocly);
-        //swipeRefreshLayout.setColorSchemeResources(getResources().getColor(R.color.primary));
+        firstTime = true;
+        swipeRefreshLayout.setColorSchemeResources(R.color.primary);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                BloclyApplication.getSharedDataSource().fetchNewFeed("http://feeds.feedburner.com/androidcentral?format=xml",
-                        new DataSource.Callback<RssFeed>() {
-                            @Override
-                            public void onSuccess(RssFeed rssFeed) {
-                                if (isFinishing() || isDestroyed()) {
-                                    // because of the asynchronous nature
-                                    // its possible activity was closed by user
-                                    return;
+                if (firstTime) {
+                    BloclyApplication.getSharedDataSource().fetchNewFeed("http://feeds.feedburner.com/androidcentral?format=xml",
+                            new DataSource.Callback<RssFeed>() {
+                                @Override
+                                public void onSuccess(RssFeed rssFeed) {
+                                    if (isFinishing() || isDestroyed()) {
+                                        // because of the asynchronous nature
+                                        // its possible activity was closed by user
+                                        return;
+                                    }
+                                    allFeeds.add(rssFeed);
+                                    navigationDrawerAdapter.notifyDataSetChanged();
+                                    BloclyApplication.getSharedDataSource().fetchItemsForFeed(rssFeed,
+                                            new DataSource.Callback<List<RssItem>>() {
+
+                                                @Override
+                                                public void onSuccess(List<RssItem> rssItems) {
+                                                    if (isFinishing() || isDestroyed())
+                                                        return;
+                                                    currentItems.addAll(rssItems);
+                                                    itemAdapter.notifyItemRangeInserted(0, currentItems.size());
+                                                    swipeRefreshLayout.setRefreshing(false);
+                                                }
+
+                                                @Override
+                                                public void onError(String errorMessage) {
+                                                    swipeRefreshLayout.setRefreshing(false);
+                                                }
+                                            });
+
                                 }
-                                allFeeds.add(rssFeed);
-                                navigationDrawerAdapter.notifyDataSetChanged();
-                                BloclyApplication.getSharedDataSource().fetchItemsForFeed(rssFeed,
-                                        new DataSource.Callback<List<RssItem>>() {
 
-                                            @Override
-                                            public void onSuccess(List<RssItem> rssItems) {
-                                                if (isFinishing() || isDestroyed())
-                                                    return;
-                                                currentItems.addAll(rssItems);
-                                                itemAdapter.notifyItemRangeInserted(0, currentItems.size());
-                                                swipeRefreshLayout.setRefreshing(false);
-                                            }
+                                @Override
+                                public void onError(String errorMessage) {
+                                    Toast.makeText(BloclyActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                                    swipeRefreshLayout.setRefreshing(false);
+                                }
 
-                                            @Override
-                                            public void onError(String errorMessage) {
-                                                swipeRefreshLayout.setRefreshing(false);
-                                            }
-                                        });
+                            });
+                    firstTime = false;
+                } else { //not creating for first time
+                    BloclyApplication.getSharedDataSource().refreshExistingFeed("http://feeds.feedburner.com/androidcentral?format=xml", allFeeds.get(0).getRowId(),currentItems,
+                            new DataSource.Callback<List<RssItem>>() {
 
-                            }
+                                @Override
+                                public void onSuccess(List<RssItem> latestItemList) {
+                                    if (isFinishing() || isDestroyed())
+                                        return;
+/*                                  // fake an update (careful..wasn't added to db)
+                                    RssItem test = new RssItem(100,"guid", "Kari's test title","Dumb description",
+                                            "myUrl.com", null, 1,100,false,true);
+                                    latestItemList.add(test);
+*/
+                                    if (latestItemList.size() != 0) {
+                                        currentItems.addAll(0, latestItemList);
+                                        itemAdapter.notifyDataSetChanged(); //check this
+                                        swipeRefreshLayout.setRefreshing(false);
+                                    } else {
+                                        Toast.makeText(BloclyActivity.this, "Nothing to refresh", Toast.LENGTH_SHORT).show();
+                                        swipeRefreshLayout.setRefreshing(false);
+                                    }
+                                }
 
-                            @Override
-                            public void onError(String errorMessage) {
-                                Toast.makeText(BloclyActivity.this, errorMessage, Toast.LENGTH_LONG).show();
-                                swipeRefreshLayout.setRefreshing(false);
-                            }
+                                @Override
+                                public void onError(String errorMessage) {
+                                    Toast.makeText(BloclyActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                                    swipeRefreshLayout.setRefreshing(false);
+                                }
+                            });
 
-                        });
+                }
             }
         });
         recyclerView = (RecyclerView) findViewById(R.id.rv_activity_blocly);
