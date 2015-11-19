@@ -1,5 +1,7 @@
 package io.bloc.android.blocly.api.network;
 
+import org.jsoup.Jsoup;
+import org.jsoup.select.Elements;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -31,6 +33,8 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
     private static final String XML_TAG_ENCLOSURE = "enclosure";
     private static final String XML_TAG_ATTRIBUTE_URL = "url";
     private static final String XML_TAG_ATTRIBUTE_TYPE = "type";
+    private static final String XML_TAG_CONTENT_ENCODED = "content:encoded";
+    private static final String XML_TAG_MEDIA_CONTENT = "media:content";
 
     String [] feedUrls;
 
@@ -49,6 +53,7 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
             try {
                 DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
                 Document xmlDocument = documentBuilder.parse(inputStream);
+
                 String channelTitle = optFirstTagFromDocument(xmlDocument, XML_TAG_TITLE);
                 String channelDescription = optFirstTagFromDocument(xmlDocument, XML_TAG_DESCRIPTION);
                 String channelURL = optFirstTagFromDocument(xmlDocument, XML_TAG_LINK);
@@ -58,13 +63,18 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
                 for (int itemIndex = 0; itemIndex < allItemNodes.getLength(); itemIndex++){
                     String itemURL = null;
                     String itemTitle = null;
+                    String itemImageURL = null;
                     String itemDescription = null;
                     String itemGUID = null;
                     String itemPubDate = null;
                     String itemEnclosureURL = null;
                     String itemEnclosureMIMEType = null;
+                    String itemContentEncodedText = null;
+                    String itemMediaURL = null;
+                    String itemMediaMIMEType = null;
 
                     Node itemNode = allItemNodes.item(itemIndex);
+                    String test = itemNode.toString();
                     NodeList tagNodes = itemNode.getChildNodes();
                     for (int tagIndex=0; tagIndex < tagNodes.getLength(); tagIndex++){
                         Node tagNode = tagNodes.item(tagIndex);
@@ -74,7 +84,9 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
                         } else if (XML_TAG_TITLE.equalsIgnoreCase(tag)){
                             itemTitle = tagNode.getTextContent();
                         } else if (XML_TAG_DESCRIPTION.equalsIgnoreCase(tag)) {
-                            itemDescription = tagNode.getTextContent();
+                            String descriptionText = tagNode.getTextContent();
+                            itemImageURL = parseImageFromHTML(descriptionText);
+                            itemDescription = parseTextFromHTML(descriptionText);
                         } else if (XML_TAG_ENCLOSURE.equalsIgnoreCase(tag)){
                             NamedNodeMap enclosureAttributes = tagNode.getAttributes();
                             itemEnclosureURL = enclosureAttributes.getNamedItem(XML_TAG_ATTRIBUTE_URL).getTextContent();
@@ -83,22 +95,31 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
                             itemPubDate = tagNode.getTextContent();
                         } else if (XML_TAG_GUID.equalsIgnoreCase(tag)) {
                             itemGUID = tagNode.getTextContent();
+                        } else if (XML_TAG_CONTENT_ENCODED.equalsIgnoreCase(tag)) {
+                            String contentEncoded = tagNode.getTextContent();
+                            itemImageURL = parseImageFromHTML(contentEncoded);
+                            itemContentEncodedText = parseTextFromHTML(contentEncoded);
+                        } else if (XML_TAG_MEDIA_CONTENT.equalsIgnoreCase(tag)) {
+                            NamedNodeMap mediaAttributes = tagNode.getAttributes();
+                            itemMediaMIMEType = mediaAttributes.getNamedItem(XML_TAG_ATTRIBUTE_TYPE).getTextContent();
+                            itemMediaURL = mediaAttributes.getNamedItem(XML_TAG_ATTRIBUTE_URL).getTextContent();
                         }
+                    }
+                    if (itemEnclosureURL == null){
+                        itemEnclosureURL = itemImageURL;
+                    }
+                    if (itemEnclosureURL == null){
+                        itemEnclosureURL = itemMediaURL;
+                        itemEnclosureMIMEType = itemMediaMIMEType;
+                    }
+                    if (itemContentEncodedText != null){
+                        // assuming content:encoded is a better choice over description
+                        itemDescription = itemContentEncodedText;
                     }
                     responseItems.add(new ItemResponse(itemURL, itemTitle, itemDescription,
                             itemGUID, itemPubDate, itemEnclosureURL, itemEnclosureMIMEType));
                 }
                 responseFeeds.add(new FeedResponse(feedUrlString, channelTitle, channelURL, channelDescription, responseItems));
-/*
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                String line = bufferedReader.readLine();
-                while (line != null) {
-                    Log.v(getClass().getSimpleName(), "Line: " + line);
-                    line = bufferedReader.readLine();
-
-                }
-                bufferedReader.close();
-*/
             } catch (IOException e) {
                 e.printStackTrace();
                 setErrorCode(ERROR_IO);
@@ -122,6 +143,21 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
             return elementsByTagName.item(0).getTextContent();
         }
         return null;
+    }
+
+    static String parseTextFromHTML(String htmlString){
+        org.jsoup.nodes.Document document = Jsoup.parse(htmlString);
+        return document.body().text();
+
+    }
+
+    static String parseImageFromHTML(String htmlString){
+        org.jsoup.nodes.Document document = Jsoup.parse(htmlString);
+        Elements imgElements = document.select("img");
+        if (imgElements.isEmpty()){
+            return null;
+        }
+        return imgElements.attr("src");
     }
 
     public static class FeedResponse {

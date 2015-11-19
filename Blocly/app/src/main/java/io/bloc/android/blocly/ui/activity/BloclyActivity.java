@@ -88,11 +88,12 @@ public class BloclyActivity extends AppCompatActivity
         itemAdapter.setDelegate(this);
 
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.srl_activity_blocly);
-        //swipeRefreshLayout.setColorSchemeResources(getResources().getColor(R.color.primary));
+        swipeRefreshLayout.setColorSchemeResources(R.color.primary);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 BloclyApplication.getSharedDataSource().fetchNewFeed("http://feeds.feedburner.com/androidcentral?format=xml",
+//                BloclyApplication.getSharedDataSource().fetchNewFeed("http://feeds.ign.com/ign/all?format=xml",
                         new DataSource.Callback<RssFeed>() {
                             @Override
                             public void onSuccess(RssFeed rssFeed) {
