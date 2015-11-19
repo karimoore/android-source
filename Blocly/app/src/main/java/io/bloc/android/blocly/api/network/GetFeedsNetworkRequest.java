@@ -74,7 +74,6 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
                     String itemMediaMIMEType = null;
 
                     Node itemNode = allItemNodes.item(itemIndex);
-                    String test = itemNode.toString();
                     NodeList tagNodes = itemNode.getChildNodes();
                     for (int tagIndex=0; tagIndex < tagNodes.getLength(); tagIndex++){
                         Node tagNode = tagNodes.item(tagIndex);
