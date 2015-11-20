@@ -35,6 +35,7 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
     private static final String XML_TAG_ATTRIBUTE_TYPE = "type";
     private static final String XML_TAG_CONTENT_ENCODED = "content:encoded";
     private static final String XML_TAG_MEDIA_CONTENT = "media:content";
+    private static final String XML_TAG_MEDIA_THUMBNAIL = "media:thumbnail";
 
     String [] feedUrls;
 
@@ -72,18 +73,24 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
                     String itemContentEncodedText = null;
                     String itemMediaURL = null;
                     String itemMediaMIMEType = null;
+                    String itemMediaThumbnail = null;
+                    boolean thereIsAHttpReference = false;
 
                     Node itemNode = allItemNodes.item(itemIndex);
                     NodeList tagNodes = itemNode.getChildNodes();
                     for (int tagIndex=0; tagIndex < tagNodes.getLength(); tagIndex++){
                         Node tagNode = tagNodes.item(tagIndex);
                         String tag = tagNode.getNodeName();
-                        if (XML_TAG_LINK.equalsIgnoreCase(tag)){
+                        if (XML_TAG_LINK.equalsIgnoreCase(tag)) {
                             itemURL = tagNode.getTextContent();
+                        } else if (XML_TAG_MEDIA_THUMBNAIL.equalsIgnoreCase(tag)){
+                            NamedNodeMap thumbnailAttributes = tagNode.getAttributes();
+                            itemMediaThumbnail = thumbnailAttributes.getNamedItem(XML_TAG_ATTRIBUTE_URL).getTextContent();
                         } else if (XML_TAG_TITLE.equalsIgnoreCase(tag)){
                             itemTitle = tagNode.getTextContent();
                         } else if (XML_TAG_DESCRIPTION.equalsIgnoreCase(tag)) {
                             String descriptionText = tagNode.getTextContent();
+                            thereIsAHttpReference = IsThereALink(descriptionText);
                             itemImageURL = parseImageFromHTML(descriptionText);
                             itemDescription = parseTextFromHTML(descriptionText);
                         } else if (XML_TAG_ENCLOSURE.equalsIgnoreCase(tag)){
@@ -96,12 +103,12 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
                             itemGUID = tagNode.getTextContent();
                         } else if (XML_TAG_CONTENT_ENCODED.equalsIgnoreCase(tag)) {
                             String contentEncoded = tagNode.getTextContent();
-                            itemImageURL = parseImageFromHTML(contentEncoded);
+  //                        itemImageURL = parseImageFromHTML(contentEncoded);
                             itemContentEncodedText = parseTextFromHTML(contentEncoded);
                         } else if (XML_TAG_MEDIA_CONTENT.equalsIgnoreCase(tag)) {
                             NamedNodeMap mediaAttributes = tagNode.getAttributes();
-                            itemMediaMIMEType = mediaAttributes.getNamedItem(XML_TAG_ATTRIBUTE_TYPE).getTextContent();
                             itemMediaURL = mediaAttributes.getNamedItem(XML_TAG_ATTRIBUTE_URL).getTextContent();
+//                          itemMediaMIMEType = mediaAttributes.getNamedItem(XML_TAG_ATTRIBUTE_TYPE).getTextContent();
                         }
                     }
                     if (itemEnclosureURL == null){
@@ -114,6 +121,10 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
                     if (itemContentEncodedText != null){
                         // assuming content:encoded is a better choice over description
                         itemDescription = itemContentEncodedText;
+                    }
+                    if (thereIsAHttpReference) { // there is a reference to html in body
+                        itemEnclosureURL = itemMediaThumbnail;
+                        thereIsAHttpReference = false;
                     }
                     responseItems.add(new ItemResponse(itemURL, itemTitle, itemDescription,
                             itemGUID, itemPubDate, itemEnclosureURL, itemEnclosureMIMEType));
@@ -157,6 +168,15 @@ public class GetFeedsNetworkRequest extends NetworkRequest<List<GetFeedsNetworkR
             return null;
         }
         return imgElements.attr("src");
+    }
+    static boolean IsThereALink(String htmlString){
+        org.jsoup.nodes.Document document = Jsoup.parse(htmlString);
+        org.jsoup.nodes.Element link = document.select("a").first();
+        String absHref = link.attr("abs:href"); // "http://jsoup.org/"
+        if (absHref != null){
+            return true;
+        }
+        return false;
     }
 
     public static class FeedResponse {

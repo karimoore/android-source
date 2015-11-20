@@ -95,6 +95,8 @@ public class BloclyActivity extends AppCompatActivity
                 BloclyApplication.getSharedDataSource().fetchNewFeed("http://feeds.feedburner.com/elise/simplyrecipes",
 //                BloclyApplication.getSharedDataSource().fetchNewFeed("http://feeds.feedburner.com/androidcentral?format=xml",
 //                BloclyApplication.getSharedDataSource().fetchNewFeed("http://feeds.ign.com/ign/all?format=xml",
+//                BloclyApplication.getSharedDataSource().fetchNewFeed("http://feeds.gawker.com/lifehacker/full.xml#_ga=1.248261326.838595976.1447963978",
+
                         new DataSource.Callback<RssFeed>() {
                             @Override
                             public void onSuccess(RssFeed rssFeed) {
