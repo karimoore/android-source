@@ -60,7 +60,9 @@ public class RssFeedTable extends Table {
         return readableDatabase.query(true, NAME, null, COLUMN_FEED_URL + " = ?", new String[]{feedURL},
                 null, null, null, null);
     }
-
+    public static Cursor fetchAllFeeds(SQLiteDatabase readonlyDatabase) {
+        return readonlyDatabase.rawQuery("SELECT * FROM " + NAME + " ORDER BY ?", new String[]{COLUMN_TITLE});
+    }
     @Override
     public String getName() {
         return "rss_feeds";

@@ -9,12 +9,6 @@ import android.database.sqlite.SQLiteDatabase;
  */
 public class RssItemTable extends Table {
 
-    // fetch all items associated wit the feed feedRowId
-    public static Cursor fetchItemsForFeed(SQLiteDatabase readableDatabase, long feedRowId) {
-        return readableDatabase.query(true, NAME, null, COLUMN_RSS_FEED + " = ?",
-                new String[]{String.valueOf(feedRowId)},
-                null, null, COLUMN_PUB_DATE + " DESC", null);
-    }
 
     public static class Builder implements Table.Builder {
         ContentValues values = new ContentValues();
@@ -88,6 +82,21 @@ public class RssItemTable extends Table {
     }
     public static boolean getArchived(Cursor cursor) {
         return getBoolean(cursor, COLUMN_ARCHIVED);
+    }
+
+    // fetch all items associated wit the feed feedRowId
+    public static Cursor fetchItemsForFeed(SQLiteDatabase readableDatabase, long feedRowId) {
+        return readableDatabase.query(true, NAME, null, COLUMN_RSS_FEED + " = ?",
+                new String[]{String.valueOf(feedRowId)},
+                null, null, COLUMN_PUB_DATE + " DESC", null);
+    }
+
+    public static boolean hasItem(SQLiteDatabase readonlyDatabase, String guId){
+        Cursor query = readonlyDatabase.query(true, NAME, new String[]{COLUMN_GUID}, COLUMN_GUID + " = ?", new String[]{guId},
+                null,null,null,null);
+        boolean hasItem = query.moveToFirst();
+        query.close();
+        return hasItem;
     }
 
     private static final String NAME = "rss_items";
