@@ -88,9 +88,23 @@ public class RssItemListFragment extends Fragment implements ItemAdapter.DataSou
             @Override
             public void onSuccess(RssFeed rssFeed) {
                 currentFeed = rssFeed;
-            }
+                //add
+                BloclyApplication.getSharedDataSource().fetchItemsForFeed(currentFeed, new DataSource.Callback<List<RssItem>>() {
 
-            @Override
+                    @Override
+                    public void onSuccess(List<RssItem> rssItems) {
+                        currentItems = rssItems;
+                        itemAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onError(String errorMessage) {
+
+                    }
+                });
+
+            }
+                @Override
             public void onError(String errorMessage) {}
         });
     }

@@ -1,6 +1,8 @@
 package io.bloc.android.blocly.ui.activity;
 
 import android.animation.ValueAnimator;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
@@ -233,11 +235,54 @@ public class BloclyActivity extends AppCompatActivity
     }
 
     @Override
-    public void didSelectFeed(NavigationDrawerAdapter adapter, RssFeed rssFeed) {
+    public void didSelectFeed(NavigationDrawerAdapter adapter, final RssFeed rssFeed) {
         drawerLayout.closeDrawers();
-        Toast.makeText(this, "Show RSS Items from "+ rssFeed.getTitle(), Toast.LENGTH_SHORT).show();
+
+        //get the feed items
+        BloclyApplication.getSharedDataSource().fetchNewItemsForFeed(rssFeed,//currentFeed,
+                new DataSource.Callback<List<RssItem>>() {
+
+                    @Override
+                    public void onSuccess(List<RssItem> rssItems) {
+                        // I have a list of rssItems to display
+                        FragmentManager fm = getFragmentManager();
+                        int numOnStack = fm.getBackStackEntryCount();
+                        Fragment fragment = fm.findFragmentByTag(rssFeed.getTitle());
+                        if(fragment != null && fragment.isVisible()) {
+                            Toast.makeText(BloclyActivity.this, rssFeed.getTitle() + " is already displayed", Toast.LENGTH_SHORT).show();
+                            return;
+                            // it is already up. user picks same feed twice, don't create twice
+                        } else if (fragment != null) {
+                            // we have already created it, use what we have, but it might be hidden within stack
+                            getFragmentManager().popBackStack(rssFeed.getTitle(), 0);
+                        } else {
+                            getFragmentManager()
+                                    .beginTransaction()
+                                    .replace(R.id.fl_activity_blocly, RssItemListFragment.fragmentForRssFeed(rssFeed), rssFeed.getTitle())
+                                    .addToBackStack(rssFeed.getTitle())
+                                    .commit();
+                        }
+
+                    }
+
+                    @Override
+                    public void onError(String errorMessage) {
+                        //swipeRefreshLayout.setRefreshing(false);
+                    }
+                });
     }
-//  NavigationDrawerAdapterDataSource
+
+    @Override
+    public void onBackPressed() {
+        int backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
+        if ( getFragmentManager().getBackStackEntryCount() > 0) {
+            getFragmentManager().popBackStack();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    //  NavigationDrawerAdapterDataSource
     @Override
     public List<RssFeed> getFeeds(NavigationDrawerAdapter adapter) {
         return allFeeds;
