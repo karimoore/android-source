@@ -1,7 +1,7 @@
 package io.bloc.android.blocly.ui.fragment;
 
+import android.app.Activity;
 import android.app.Fragment;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -55,18 +55,21 @@ public class RssItemListFragment extends Fragment implements ItemAdapter.DataSou
     private WeakReference<Delegate> delegate;
 
 
+/*
     @Override
     public void onAttach(Context context) {//should this be activity
         super.onAttach(context);
         delegate = new WeakReference<Delegate>((Delegate) context);
     }
+*/
 
-/*
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        delegate = new WeakReference<Delegate>((Delegate) activity);
     }
-*/
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
