@@ -48,7 +48,8 @@ public class BloclyActivity extends AppCompatActivity
     private View overflowButton;
     private List<RssFeed> allFeeds = new ArrayList<RssFeed>();
     private RssItem expandedItem = null;
-    private boolean onTablet;
+    private boolean onLandscapeTablet;
+    private boolean onPortraitTablet;
 
 /*
     Private methods
@@ -79,7 +80,8 @@ public class BloclyActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_blocly);
 
-        onTablet = findViewById(R.id.fl_activity_blocly_right_pane) != null;
+        onLandscapeTablet = findViewById(R.id.fl_activity_blocly_right_pane) != null;
+        onPortraitTablet = findViewById(R.id.fl_activity_blocly_bottom_pane) != null;
         Toolbar toolbar = (Toolbar) findViewById(R.id.tb_activity_blocly);
         setSupportActionBar(toolbar);
 
@@ -253,15 +255,20 @@ public class BloclyActivity extends AppCompatActivity
     @Override
     public void onItemExpanded(RssItemListFragment rssItemListFragment, RssItem rssItem) {
         expandedItem = rssItem;
-        if (onTablet) {
+        if (onLandscapeTablet) {
             getFragmentManager().beginTransaction()
                     .replace(R.id.fl_activity_blocly_right_pane, RssItemDetailFragment.detailFragmentForRssItem(rssItem))
                     .commit();
             if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
                 return;
             }
-            //return;
         }
+        if (onPortraitTablet) {
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.fl_activity_blocly_bottom_pane, RssItemDetailFragment.detailFragmentForRssItem(rssItem))
+                    .commit();
+        }
+
         animateShareItem(expandedItem != null);
     }
 
