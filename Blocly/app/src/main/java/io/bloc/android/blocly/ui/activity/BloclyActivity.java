@@ -38,7 +38,8 @@ public class BloclyActivity extends AppCompatActivity
         implements
         NavigationDrawerAdapter.NavigationDrawerAdapterDelegate,
         NavigationDrawerAdapter.NavigationDrawerAdapterDataSource,
-        RssItemListFragment.Delegate {
+        RssItemListFragment.Delegate,
+        RssItemDetailFragment.Delegate {
 
     private ActionBarDrawerToggle drawerToggle;
     private DrawerLayout drawerLayout;
@@ -53,6 +54,7 @@ public class BloclyActivity extends AppCompatActivity
     Private methods
     */
     private  void animateShareItem(final boolean enabled){
+
         MenuItem shareItem = menu.findItem(R.id.action_share);
         if (shareItem.isEnabled() == enabled){
             return;
@@ -232,7 +234,7 @@ public class BloclyActivity extends AppCompatActivity
     @Override
     public void didSelectNavigationOption(NavigationDrawerAdapter adapter, NavigationDrawerAdapter.NavigationOption navigationOption) {
         drawerLayout.closeDrawers();
-        Toast.makeText(this, "Show the "+ navigationOption.name(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Show the " + navigationOption.name(), Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -255,7 +257,10 @@ public class BloclyActivity extends AppCompatActivity
             getFragmentManager().beginTransaction()
                     .replace(R.id.fl_activity_blocly_right_pane, RssItemDetailFragment.detailFragmentForRssItem(rssItem))
                     .commit();
-            return;
+            if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
+                return;
+            }
+            //return;
         }
         animateShareItem(expandedItem != null);
     }
@@ -265,7 +270,10 @@ public class BloclyActivity extends AppCompatActivity
         if (expandedItem == rssItem){
             expandedItem = null;
         }
-        animateShareItem(expandedItem != null);
+        if(getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE) {
+            //Do some stuff
+            animateShareItem(expandedItem != null);
+        }
     }
 
     @Override
@@ -273,5 +281,11 @@ public class BloclyActivity extends AppCompatActivity
         Intent visitIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(rssItem.getUrl()));
         startActivity(visitIntent);
 
+    }
+
+    @Override
+    public void onItemDetailVisitClicked(RssItemDetailFragment rssItemDetailFragment) {
+        Intent visitIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(expandedItem.getUrl()));
+        startActivity(visitIntent);
     }
 }

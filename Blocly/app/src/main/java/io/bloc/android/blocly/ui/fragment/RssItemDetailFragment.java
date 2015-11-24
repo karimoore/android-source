@@ -1,5 +1,6 @@
 package io.bloc.android.blocly.ui.fragment;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -11,21 +12,30 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
+import java.lang.ref.WeakReference;
+
 import io.bloc.android.blocly.BloclyApplication;
 import io.bloc.android.blocly.R;
 import io.bloc.android.blocly.api.DataSource;
 import io.bloc.android.blocly.api.model.RssItem;
+import io.bloc.android.blocly.ui.adapter.ItemAdapter;
 
 /**
  * Created by Kari on 11/22/2015.
  */
-public class RssItemDetailFragment extends Fragment implements ImageLoadingListener {
+public class RssItemDetailFragment extends Fragment implements ImageLoadingListener, ItemAdapter.Delegate, View.OnClickListener {
 
+
+
+    public static interface Delegate {
+        public void onItemDetailVisitClicked(RssItemDetailFragment rssItemDetailFragment);
+    }
     private static final String BUNDLE_EXTRA_RSS_ITEM = RssItemDetailFragment.class.getCanonicalName().concat(".EXTRA_RSS_ITEM");
 
     public static RssItemDetailFragment detailFragmentForRssItem(RssItem rssItem) {
@@ -35,10 +45,20 @@ public class RssItemDetailFragment extends Fragment implements ImageLoadingListe
         rssItemDetailFragment.setArguments(arguments);
         return rssItemDetailFragment;
     }
+
+    private WeakReference<Delegate> delegate;
+
     ImageView headerImage;
     TextView title;
     TextView content;
     ProgressBar progressBar;
+    TextView visitSite;
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        delegate = new WeakReference<Delegate>((Delegate) activity);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -71,6 +91,9 @@ public class RssItemDetailFragment extends Fragment implements ImageLoadingListe
         progressBar = (ProgressBar) inflate.findViewById(R.id.pb_fragment_rss_item_detail_header);
         title = (TextView) inflate.findViewById(R.id.tv_fragment_rss_item_detail_title);
         content = (TextView) inflate.findViewById(R.id.tv_fragment_rss_item_detail_content);
+        visitSite = (TextView) inflate.findViewById(R.id.tv_rss_item_visit_site);
+        visitSite.setOnClickListener(this);
+
         return inflate;
     }
 
@@ -118,4 +141,22 @@ public class RssItemDetailFragment extends Fragment implements ImageLoadingListe
     public void onLoadingCancelled(String imageUri, View view) {
 
     }
+
+    @Override
+    public void onItemClicked(ItemAdapter itemAdapter, RssItem rssItem) {
+        Toast.makeText(getActivity(), "inside onItemclicked - detail", Toast.LENGTH_SHORT).show();
+    }
+
+    //    ItemAdapter.Delegate methods
+    @Override
+    public void onVisitClicked(ItemAdapter itemAdapter, RssItem rssItem) {
+//        delegate.get().onItemDetailVisitClicked(this, rssItem);
+
+    }
+    @Override
+    public void onClick(View v) {
+        // let the activity do the screen change
+        delegate.get().onItemDetailVisitClicked(this);
+    }
+
 }
